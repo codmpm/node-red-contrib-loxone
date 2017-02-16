@@ -1,9 +1,15 @@
+<script type="text/x-red" data-help-name="loxone-in">
+    <p>bla bla</p>
+</script>
+
+
 <script type="text/javascript">
-    RED.nodes.registerType('loxone', {
+    RED.nodes.registerType('loxone-in', {
         category: 'input',
         color: '#83B817',
         defaults: {
-            name: {value: "loxone"}
+            name: {value: ""},
+            miniserver: {type: "loxone-miniserver", required: true}
         },
         inputs: 0,
         outputs: 1,
@@ -14,15 +20,71 @@
     });
 </script>
 
-<script type="text/x-red" data-template-name="lower-case">
+<script type="text/x-red" data-template-name="loxone-in">
+
+    <div class="form-row">
+        <label for="node-input-miniserver">
+            <i class="fa fa-globe"></i>
+            Miniserver
+        </label>
+        <input type="text" id="node-input-miniserver">
+    </div>
+
     <div class="form-row">
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
     </div>
 
+
+
+
+
 </script>
 
-<script type="text/x-red" data-help-name="lower-case">
-    <p>A simple node that converts the message payloads into all lower-case characters</p>
+
+
+
+<script type="text/javascript">
+    RED.nodes.registerType('loxone-miniserver', {
+        category: 'config',
+        defaults: {
+            host: {value: "", required: true},
+            port: {value: 80, required: true, validate: RED.validators.number()},
+            user: {value: "", required: true},
+            password: {value: "", required: true}
+        },
+        label: function () {
+            return this.host;
+        }
+    });
+</script>
+
+<script type="text/x-red" data-template-name="loxone-miniserver">
+
+    <div class="form-row node-input-broker">
+        <label for="node-config-input-broker">
+            <i class="fa fa-globe"></i> Miniserver
+        </label>
+        <input class="input-append-left" type="text" id="node-config-input-host" placeholder="hostname/ip" style="width: 40%;" >
+
+        <label for="node-config-input-port" style="margin-left: 10px; width: 35px;">
+            Port
+        </label>
+        <input type="text" id="node-config-input-port" style="width:45px">
+    </div>
+
+    <div class="form-row">
+        <label for="node-config-input-port"><i class="fa fa-user"></i> User</label>
+        <input type="text" id="node-config-input-user">
+    </div>
+    <div class="form-row">
+        <label for="node-config-input-port"><i class="fa fa-lock"></i> Password</label>
+        <input type="password" id="node-config-input-password">
+    </div>
+
+
+
 
 </script>
+
+
