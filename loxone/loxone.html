@@ -1,5 +1,6 @@
 <script type="text/x-red" data-help-name="loxone-in">
     <p>bla bla</p>
+
 </script>
 
 
@@ -36,12 +37,7 @@
     </div>
 
 
-
-
-
 </script>
-
-
 
 
 <script type="text/javascript">
@@ -50,8 +46,10 @@
         defaults: {
             host: {value: "", required: true},
             port: {value: 80, required: true, validate: RED.validators.number()},
-            user: {value: "", required: true},
-            password: {value: "", required: true}
+        },
+        credentials: {
+            username: {type: "text", required: true},
+            password: {type: "password", required: true}
         },
         label: function () {
             return this.host;
@@ -70,19 +68,17 @@
         <label for="node-config-input-port" style="margin-left: 10px; width: 35px;">
             Port
         </label>
-        <input type="text" id="node-config-input-port" style="width:45px">
+        <input type="text" id="node-config-input-port" style="width:45px" placeholder="80">
     </div>
 
     <div class="form-row">
-        <label for="node-config-input-port"><i class="fa fa-user"></i> User</label>
-        <input type="text" id="node-config-input-user">
+        <label for="node-config-input-username"><i class="fa fa-user"></i> User</label>
+        <input type="text" id="node-config-input-username">
     </div>
     <div class="form-row">
         <label for="node-config-input-port"><i class="fa fa-lock"></i> Password</label>
         <input type="password" id="node-config-input-password">
     </div>
-
-
 
 
 </script>
