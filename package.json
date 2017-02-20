@@ -12,7 +12,8 @@
     }
   },
   "dependencies": {
-    "ws": "^1.0.1"
+    "ws": "^1.0.1",
+    "node-lox-ws-api": "^0.2.6"
   },
   "repository": "codmpm/node-red-contrib-loxone"
 }

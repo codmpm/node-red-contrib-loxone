@@ -1,135 +1,125 @@
 module.exports = function (RED) {
 
     "use strict";
-    var ws = require("ws");
-    var crypto = require("crypto");
-
-    const keepAliveInterval = 120000;
-
-    //http://stackoverflow.com/questions/3745666/how-to-convert-from-hex-to-ascii-in-javascript
-    function hex2a(hexx) {
-        var hex = hexx.toString();//force conversion
-        var str = '';
-        for (var i = 0; i < hex.length; i += 2)
-            str += String.fromCharCode(parseInt(hex.substr(i, 2), 16));
-        return str;
-    }
+    //var ws = require("ws");
+    const node_lox_ws_api = require("node-lox-ws-api");
 
     function LoxoneMiniserver(config) {
+
+        function _update_event(uuid, evt) {
+            var data = {
+                uuid: uuid,
+                'event': _limit_string(JSON.stringify(evt), text_logger_limit),
+            };
+            node.log("received update event: " + data.event + ':' + data.uuid);
+        }
+
+        function _limit_string(text, limit) {
+            if (text.length <= limit) {
+                return text;
+            }
+            return text.substr(0, limit) + '...(' + text.length + ')';
+        }
+
 
         RED.nodes.createNode(this, config);
 
         var node = this;
-
-        node.host = config.host;
-        node.port = config.port;
-
-        node.connected = false;
-        node.authenticated = false;
-        node.reconnectTimeout = undefined;
-        node.keepAliveTimeout = undefined;
-
-        var username = this.credentials.username;
-        var password = this.credentials.password;
-        var authKey = null;
-
-        var uri = 'ws://' + node.host + ':' + node.port + '/ws/rfc6455';
-        var reqInit = 'jdev/sys/getkey';
-
-        connectMiniserver();
-
-        function connectMiniserver() {
-            node.tout = null;
-
-            var socket = new ws(uri, 'remotecontrol');
-            socket.setMaxListeners(0);
-            node.server = socket; // keep for closing
-
-            handleMiniserverConnection(socket);
-        }
-
-        function handleMiniserverConnection(socket) {
-
-            socket.on('open', function () {
-                node.log('Connected to ' + uri);
-
-                node.connected = true;
-                socket.send(reqInit);
-                console.log('opened');
-            });
-
-            socket.on('message', function (msg) {
-                console.log('received message:');
-                console.log(msg);
-                //console.log(typeof msg);
-
-                //TODO: check binary message header. For now only handle the string/json responses
-
-                if (typeof msg == 'string') {
-                    var response = JSON.parse(msg);
-
-                    switch (response.LL.Code) {
-
-                        case '200':
-
-                            if(response.LL.control.indexOf('authenticate') > -1){
-                                //we've got 200 on our authentication request
-                                node.authenticated = true;
-                                node.log('Authenticated with miniserver!');
-
-                                clearInterval(node.keepAliveTimeout);
-                                node.keepAliveTimeout = setInterval(handleKeepAlive, keepAliveInterval);
-
-                            } else if (response.LL.control == reqInit) {
-                                authKey = hex2a(response.LL.value);
-                                var cred = username + ':' + password;
-                                var hash = crypto.createHmac('sha1', authKey).update(cred).digest('hex');
-                                socket.send('authenticate/' + hash);
-                            }
-                            break;
-
-                        case '401':
-
-                            if(response.LL.control.indexOf('authenticate') > -1) {
-                                //we've got a 401 on our authentication request
-                                node.authenticated = false;
-                                node.warn('Connection to miniserver could not be authorized.');
-                            }
-
-                            break;
+        //node.port = config.port;
 
 
-                        default:
-                            node.warn('Unknown status on miniserver request: ' + response.LL.Code);
+        var text_logger_limit = 100;
+        //var ws_auth = config.encrypted ? 'AES-256-CBC' : 'Hash';
+        var ws_auth = 'Hash';
 
-                    }
+        node.log('connecting miniserver...');
 
+        var client = new node_lox_ws_api(
+            config.host,
+            node.credentials.username,
+            node.credentials.password,
+            true,
+            ws_auth
+        );
 
-                }
+        client.connect();
 
+        client.on('connect', function () {
+            node.log("connected");
+        });
 
-            });
+        client.on('authorized', function () {
+            node.log("authorized");
+        });
 
-            socket.on('close', function () {
+        client.on('connect_failed', function () {
+            node.error("connect failed");
+        });
 
-                node.connected = false;
-                node.authenticated = false;
-                clearInterval(node.keepAliveTimeout);
+        client.on('connection_error', function (error) {
+            node.error("connection error: " + error);
+        });
 
-                node.warn('Miniserver Websocket closed.');
+        client.on('close', function () {
+            node.log("connection closed");
+        });
 
-                //node.reconnectTimeout = setTimeout(connectMiniserver, 5000);
-            });
+        client.on('send', function (message) {
+            node.log("send message: " + message);
+        });
 
-        }
+        client.on('message_text', function (message) {
+            var data = {
+                type: message.type
+            };
+            switch (message.type) {
+                case 'json':
+                    data.json = _limit_string(JSON.stringify(message.json), text_logger_limit);
+                    node.log("received text message: " + data.json);
 
-
-        function handleKeepAlive(){
-            if(node.connected){
-                node.server.send('keepalive');
-                node.log("Sent keepalive...");
+                    break;
+                case 'control':
+                    data.control = message.control;
+                    data.value = message.value;
+                    data.code = message.code;
+                    break;
+                default:
+                    data.text = _limit_string(message.data, text_logger_limit);
+                    node.log("received text message: " + data.text);
             }
-        }
+
+        });
+
+
+        client.on('keepalive', function (time) {
+            node.log('keepalive (' + time + 'ms)');
+        });
+
+        client.on('message_header', function (header) {
+            node.log('received message header (' + header.next_state() + '):', header);
+        });
+
+        client.on('message_event_table_values', function (messages) {
+            node.log('received value messages:' + messages.length);
+        });
+
+        client.on('message_event_table_text', function (messages) {
+            node.log('received text messages:' + messages.length);
+        });
+
+        client.on('get_structure_file', function (data) {
+            node.log("get structure file " + data.lastModified);
+
+            //console.log('------------ structure');
+            //console.log(data);
+            //console.log('----------------------');
+        });
+
+        client.on('update_event_value', _update_event);
+        client.on('update_event_text', _update_event);
+        client.on('update_event_daytimer', _update_event);
+        client.on('update_event_weather', _update_event);
+
 
     }
 
