@@ -4,6 +4,8 @@ module.exports = function (RED) {
     var ws = require("ws");
     var crypto = require("crypto");
 
+    const keepAliveInterval = 120000;
+
     //http://stackoverflow.com/questions/3745666/how-to-convert-from-hex-to-ascii-in-javascript
     function hex2a(hexx) {
         var hex = hexx.toString();//force conversion
@@ -24,6 +26,8 @@ module.exports = function (RED) {
 
         node.connected = false;
         node.authenticated = false;
+        node.reconnectTimeout = undefined;
+        node.keepAliveTimeout = undefined;
 
         var username = this.credentials.username;
         var password = this.credentials.password;
@@ -73,6 +77,9 @@ module.exports = function (RED) {
                                 node.authenticated = true;
                                 node.log('Authenticated with miniserver!');
 
+                                clearInterval(node.keepAliveTimeout);
+                                node.keepAliveTimeout = setInterval(handleKeepAlive, keepAliveInterval);
+
                             } else if (response.LL.control == reqInit) {
                                 authKey = hex2a(response.LL.value);
                                 var cred = username + ':' + password;
@@ -104,13 +111,25 @@ module.exports = function (RED) {
             });
 
             socket.on('close', function () {
+
                 node.connected = false;
                 node.authenticated = false;
+                clearInterval(node.keepAliveTimeout);
+
                 node.warn('Miniserver Websocket closed.');
+
+                //node.reconnectTimeout = setTimeout(connectMiniserver, 5000);
             });
 
         }
 
+
+        function handleKeepAlive(){
+            if(node.connected){
+                node.server.send('keepalive');
+                node.log("Sent keepalive...");
+            }
+        }
 
     }
 
