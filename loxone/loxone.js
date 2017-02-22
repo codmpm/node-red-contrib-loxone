@@ -1,10 +1,52 @@
 module.exports = function (RED) {
 
     "use strict";
-    //var ws = require("ws");
     const node_lox_ws_api = require("node-lox-ws-api");
 
+    RED.httpAdmin.get('/struct', function (req, res) {
+        if (!req.query.id) {
+            return res.json("");
+        }
+
+        var configNode = RED.nodes.getNode(req.query.id);
+        var result = {
+            state: 'error',
+            msg: 'miniserver not connected',
+            structure: {}
+        };
+
+        if (configNode.miniserverConnected) {
+
+            /*
+             console.log('connected, show debug');
+
+             console.log('---------------------------');
+             console.log(configNode.rooms);
+             console.log(configNode.categories);
+
+             console.log('---------------------------');
+             //console.log(node.structureData.controls);
+             console.log(configNode.controls);
+             */
+
+            result = {
+                state: 'ok',
+                msg: 'got miniserver structure',
+                structure: {
+                    rooms: configNode.rooms,
+                    categories: configNode.categories,
+                    controls: configNode.controls
+                }
+            };
+
+        }
+
+        res.json(result)
+
+    });
+
     function LoxoneMiniserver(config) {
+
 
         function _update_event(uuid, evt) {
             var data = {
@@ -25,15 +67,24 @@ module.exports = function (RED) {
         RED.nodes.createNode(this, config);
 
         var node = this;
-        //node.port = config.port;
+        node.miniserverConnected = false;
+        node.miniserverAuthenticated = false;
+        node.miniserverConnection = null;
+        node.structureData = null;
+        node.rooms = {};
+        node.categories = {};
+        node.controls = {};
 
 
         var text_logger_limit = 100;
+        //TODO: put auth mode in config
         //var ws_auth = config.encrypted ? 'AES-256-CBC' : 'Hash';
         var ws_auth = 'Hash';
 
+
         node.log('connecting miniserver...');
 
+        //TODO: add port to connection
         var client = new node_lox_ws_api(
             config.host,
             node.credentials.username,
@@ -46,10 +97,13 @@ module.exports = function (RED) {
 
         client.on('connect', function () {
             node.log("connected");
+            node.miniserverConnected = true;
         });
 
         client.on('authorized', function () {
             node.log("authorized");
+            node.miniserverAuthenticated = true;
+            node.miniserverConnection = client;
         });
 
         client.on('connect_failed', function () {
@@ -62,10 +116,13 @@ module.exports = function (RED) {
 
         client.on('close', function () {
             node.log("connection closed");
+            node.miniserverConnected = false;
+            node.miniserverAuthenticated = false;
+            node.miniserverConnection = null;
         });
 
         client.on('send', function (message) {
-            node.log("send message: " + message);
+            node.log("sent message: " + message);
         });
 
         client.on('message_text', function (message) {
@@ -96,7 +153,8 @@ module.exports = function (RED) {
         });
 
         client.on('message_header', function (header) {
-            node.log('received message header (' + header.next_state() + '):', header);
+            node.log('received message header (' + header.next_state() + '):');
+            //console.log(header);
         });
 
         client.on('message_event_table_values', function (messages) {
@@ -108,11 +166,10 @@ module.exports = function (RED) {
         });
 
         client.on('get_structure_file', function (data) {
-            node.log("get structure file " + data.lastModified);
+            node.log("got structure file " + data.lastModified);
+            node.structureData = data;
+            parseStructure(data);
 
-            //console.log('------------ structure');
-            //console.log(data);
-            //console.log('----------------------');
         });
 
         client.on('update_event_value', _update_event);
@@ -120,6 +177,35 @@ module.exports = function (RED) {
         client.on('update_event_daytimer', _update_event);
         client.on('update_event_weather', _update_event);
 
+
+        function parseStructure(data) {
+
+            var uuid;
+
+            for (uuid in data.rooms) {
+                if (data.rooms.hasOwnProperty(uuid)) {
+                    node.rooms[uuid] = data.rooms[uuid].name;
+                }
+            }
+
+            for (uuid in data.cats) {
+                if (data.cats.hasOwnProperty(uuid)) {
+                    node.categories[uuid] = data.cats[uuid].name;
+                }
+            }
+
+            for (uuid in data.controls) {
+                if (data.controls.hasOwnProperty(uuid)) {
+                    node.controls[uuid] = {
+                        name: data.controls[uuid].name,
+                        room: data.controls[uuid].room,
+                        cat: data.controls[uuid].cat,
+                        states: data.controls[uuid].states
+                    }
+                }
+            }
+
+        }
 
     }
 

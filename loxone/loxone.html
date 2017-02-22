@@ -1,24 +1,175 @@
 <script type="text/x-red" data-help-name="loxone-in">
     <p>bla bla</p>
 
+
+
+
+
+
+
+
 </script>
 
 
 <script type="text/javascript">
+
+    var miniserverStructure = {};
+
     RED.nodes.registerType('loxone-in', {
         category: 'input',
         color: '#83B817',
         defaults: {
-            name: {value: ""},
-            miniserver: {type: "loxone-miniserver", required: true}
+            name: {value: ''},
+            miniserver: {type: "loxone-miniserver", required: true},
+            stateUUID: {value: '', required: true}
         },
         inputs: 0,
         outputs: 1,
         icon: "loxone.png",
         label: function () {
             return this.name || "loxone";
+        },
+        oneditprepare: function () {
+
+            $('#node-input-loadstruct').on('click', loadStructureFile);
+
+
+
+        },
+        oneditsave: function () {
+            disableChangeEvents();
+        },
+        oneditcancel: function () {
+            disableChangeEvents();
         }
     });
+
+    function loadStructureFile() {
+
+        var configNodeId = $('#node-input-miniserver').val();
+
+        var url = '/struct?id=' + configNodeId;
+
+        $.getJSON(url).done(function (data) {
+
+            console.log(data);
+
+            if (data.state == 'ok') {
+                miniserverStructure = data.structure;
+
+
+                var $roomSelect = $('#node-input-room');
+                var $categorySelect = $('#node-input-category');
+                var $controlSelect = $('#node-input-control');
+                var uuid;
+
+                $roomSelect.empty();
+                $categorySelect.empty();
+                $controlSelect.empty();
+
+                if (
+                    typeof data.structure.rooms != 'undefined' &&
+                    typeof data.structure.categories != 'undefined' &&
+                    typeof data.structure.controls != 'undefined'
+                ) {
+                    //populate form elements
+                    $roomSelect.append('<option value=""></option>');
+                    for (uuid in data.structure.rooms) {
+                        if (data.structure.rooms.hasOwnProperty(uuid)) {
+                            $roomSelect.append('<option value="' + uuid + '">' +
+                                data.structure.rooms[uuid] +
+                                '</option>');
+                        }
+                    }
+
+                    $categorySelect.append('<option value=""></option>');
+                    for (uuid in data.structure.categories) {
+                        if (data.structure.categories.hasOwnProperty(uuid)) {
+                            $categorySelect.append('<option value="' + uuid + '">' +
+                                data.structure.categories[uuid] +
+                                '</option>');
+                        }
+                    }
+
+                    $controlSelect.append('<option value=""></option>');
+                    for (uuid in data.structure.controls) {
+                        if (data.structure.controls.hasOwnProperty(uuid)) {
+                            $controlSelect.append('<option value="' + uuid + '">' +
+                                data.structure.controls[uuid].name +
+                                '</option>');
+                        }
+                    }
+                }
+
+                $('#node-input-room, #node-input-category').on('change', fillControl);
+            }
+
+            $('#return-msg').text(data.msg);
+
+
+        });
+
+
+    }
+
+    function fillControl(e) {
+
+        var $roomSelect = $('#node-input-room');
+        var $categorySelect = $('#node-input-category');
+        var $controlSelect = $('#node-input-control');
+        $controlSelect.off('change');
+
+        var roomVal = $roomSelect.val();
+        var categoryVal = $categorySelect.val();
+
+        $controlSelect.empty();
+
+        console.log(miniserverStructure);
+
+        var options = [];
+        for (var uuid in miniserverStructure.controls) {
+            if (
+                miniserverStructure.controls.hasOwnProperty(uuid) &&
+                ((roomVal.length && miniserverStructure.controls[uuid].room == roomVal) || !roomVal.length) &&
+                ((categoryVal.length && miniserverStructure.controls[uuid].cat == categoryVal) || !categoryVal.length)
+            ) {
+                options.push('<option value="' + uuid + '">' + miniserverStructure.controls[uuid].name + '</option>');
+            }
+        }
+
+        if (options.length > 1) {
+            $controlSelect.append('<option value=""></option>');
+        }
+        $controlSelect.append(options.join(''));
+
+        $controlSelect.on('change', fillState);
+        if (options.length == 1) {
+            $controlSelect.trigger('change');
+        }
+
+    }
+
+    function fillState(e) {
+        console.log('fill state');
+        var $stateSelect = $('#node-input-stateUUID');
+        $stateSelect.empty();
+        $stateSelect.append('<option value=""></option>');
+
+        if (typeof miniserverStructure.controls[this.value] != 'undefined') {
+            for (var statename in miniserverStructure.controls[this.value].states) {
+                if (miniserverStructure.controls[this.value].states.hasOwnProperty(statename)) {
+                    $stateSelect.append('<option value="' +
+                        miniserverStructure.controls[this.value].states.statename + '">' +
+                        statename + '</option>');
+                }
+            }
+        }
+
+    }
+
+    function disableChangeEvents() {
+        $('#node-input-room, #node-input-category, #node-input-control').off('change');
+    }
 </script>
 
 <script type="text/x-red" data-template-name="loxone-in">
@@ -32,9 +183,70 @@
     </div>
 
     <div class="form-row">
+        <label for="node-input-loadstruct">
+        </label>
+        <button type="button" id="node-input-loadstruct" class="btn">
+            <i class="icon-refresh"></i>
+            Load Miniserver Structure
+        </button>
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-room">
+            <i class="icon-home"></i>
+            Room
+        </label>
+        <select id="node-input-room" name="node-input-room">
+        </select>
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-category">
+            <i class="icon-list"></i>
+            Category
+        </label>
+        <select id="node-input-category" name="node-input-category">
+        </select>
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-control">
+            <i class="icon-cog"></i>
+            Control
+        </label>
+        <select id="node-input-control" name="node-input-control">
+        </select>
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-stateUUID">
+            <i class="fa fa-sticky-note-o" ></i>
+            State
+        </label>
+        <select id="node-input-stateUUID" name="node-input-stateUUID">
+        </select>
+    </div>
+
+    <div class="form-row">
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
     </div>
+
+    <div class="form-row">
+        <span id="return-msg"></span>
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 </script>
@@ -79,6 +291,20 @@
         <label for="node-config-input-port"><i class="fa fa-lock"></i> Password</label>
         <input type="password" id="node-config-input-password">
     </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 </script>
