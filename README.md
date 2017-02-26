@@ -47,6 +47,7 @@ ToDo
 * Configuration of the encryption mehthod - currently only "Hash"
 * Loxone-Out
 * better logging, more failsaveness
+* See `TODO` comments in the code
 * ...
 
 Installation
