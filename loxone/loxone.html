@@ -1,13 +1,6 @@
 <script type="text/x-red" data-help-name="loxone-in">
     <p>bla bla</p>
 
-
-
-
-
-
-
-
 </script>
 
 
@@ -20,8 +13,11 @@
         color: '#83B817',
         defaults: {
             name: {value: ''},
-            miniserver: {type: "loxone-miniserver", required: true},
-            stateUUID: {value: '', required: true}
+            miniserver: {type: 'loxone-miniserver', required: true},
+            control: {value: '', required: true},
+            controlName: {value: ''}, //TODO: take from structure file
+            stateName: {value: ''}, //TODO: take from structure file
+            uuid: {value: '', required: true}
         },
         inputs: 0,
         outputs: 1,
@@ -30,13 +26,15 @@
             return this.name || "loxone";
         },
         oneditprepare: function () {
-
             $('#node-input-loadstruct').on('click', loadStructureFile);
-
-
-
+            //TODO: check for already loaded structure and select the saved uuid
         },
         oneditsave: function () {
+
+            //not needed it taken from structure file
+            this.controlName = $('#node-input-control option:selected').text();
+            this.stateName = $('#node-input-uuid option:selected').text();
+
             disableChangeEvents();
         },
         oneditcancel: function () {
@@ -52,11 +50,10 @@
 
         $.getJSON(url).done(function (data) {
 
-            console.log(data);
+            //console.log(data);
 
             if (data.state == 'ok') {
                 miniserverStructure = data.structure;
-
 
                 var $roomSelect = $('#node-input-room');
                 var $categorySelect = $('#node-input-category');
@@ -102,6 +99,7 @@
                 }
 
                 $('#node-input-room, #node-input-category').on('change', fillControl);
+                $controlSelect.on('change', fillState);
             }
 
             $('#return-msg').text(data.msg);
@@ -124,7 +122,7 @@
 
         $controlSelect.empty();
 
-        console.log(miniserverStructure);
+        //console.log(miniserverStructure);
 
         var options = [];
         for (var uuid in miniserverStructure.controls) {
@@ -142,7 +140,6 @@
         }
         $controlSelect.append(options.join(''));
 
-        $controlSelect.on('change', fillState);
         if (options.length == 1) {
             $controlSelect.trigger('change');
         }
@@ -150,17 +147,20 @@
     }
 
     function fillState(e) {
-        console.log('fill state');
-        var $stateSelect = $('#node-input-stateUUID');
+        var $stateSelect = $('#node-input-uuid');
         $stateSelect.empty();
         $stateSelect.append('<option value=""></option>');
 
         if (typeof miniserverStructure.controls[this.value] != 'undefined') {
-            for (var statename in miniserverStructure.controls[this.value].states) {
-                if (miniserverStructure.controls[this.value].states.hasOwnProperty(statename)) {
-                    $stateSelect.append('<option value="' +
-                        miniserverStructure.controls[this.value].states.statename + '">' +
-                        statename + '</option>');
+
+            var control = miniserverStructure.controls[this.value];
+
+            for (var statename in control.states) {
+                if (control.states.hasOwnProperty(statename)) {
+                    $stateSelect.append(
+                        '<option value="' + control.states[statename] + '">' +
+                        statename +
+                        '</option>');
                 }
             }
         }
@@ -196,7 +196,7 @@
             <i class="icon-home"></i>
             Room
         </label>
-        <select id="node-input-room" name="node-input-room">
+        <select id="node-input-room">
         </select>
     </div>
 
@@ -205,7 +205,7 @@
             <i class="icon-list"></i>
             Category
         </label>
-        <select id="node-input-category" name="node-input-category">
+        <select id="node-input-category">
         </select>
     </div>
 
@@ -214,16 +214,16 @@
             <i class="icon-cog"></i>
             Control
         </label>
-        <select id="node-input-control" name="node-input-control">
+        <select id="node-input-control">
         </select>
     </div>
 
     <div class="form-row">
-        <label for="node-input-stateUUID">
+        <label for="node-input-uuid">
             <i class="fa fa-sticky-note-o" ></i>
             State
         </label>
-        <select id="node-input-stateUUID" name="node-input-stateUUID">
+        <select id="node-input-uuid">
         </select>
     </div>
 
@@ -235,15 +235,6 @@
     <div class="form-row">
         <span id="return-msg"></span>
     </div>
-
-
-
-
-
-
-
-
-
 
 
 
@@ -291,21 +282,6 @@
         <label for="node-config-input-port"><i class="fa fa-lock"></i> Password</label>
         <input type="password" id="node-config-input-password">
     </div>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 </script>
 
