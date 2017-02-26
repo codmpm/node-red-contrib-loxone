@@ -21,6 +21,7 @@ Currently working
 * Load structure file into node-red's editor to choose from
 * Select a control and a state to "listen to" which then gets passed to node-red
 * Control-name and State-Name are given back in the `msg`-object
+* Tested with loxone-config V8.1.11.11
 
 You can narrow the result by choosing a room or a category. 
 
