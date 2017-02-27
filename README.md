@@ -30,7 +30,7 @@ An explanation of the file can be found [here](https://www.loxone.com/dede/wp-co
 
 Currently partially working, caveats
 -
-* You have to load the structure file every time you edit a node - It is chached in the 
+* You have to load the structure file every time you edit a node - It is cached in the 
 connection, but should be cached in node-red's editor.
 * The "connected" info under the node in the editor is buggy atm
 * Only `controls` are parsed, no `mediaServer`, `weatherServer`, etc. 
