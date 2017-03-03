@@ -1,6 +1,46 @@
+<script type="text/x-red" data-help-name="loxone-in">
+    <p>bla bla</p>
+
+</script>
+
+
 <script type="text/javascript">
 
     var miniserverStructure = {};
+
+    RED.nodes.registerType('loxone-in', {
+        category: 'input',
+        color: '#83B817',
+        defaults: {
+            name: {value: ''},
+            miniserver: {type: 'loxone-miniserver', required: true},
+            control: {value: '', required: true},
+            controlName: {value: ''}, //TODO: take from structure file
+            stateName: {value: ''}, //TODO: take from structure file
+            uuid: {value: '', required: true}
+        },
+        inputs: 0,
+        outputs: 1,
+        icon: "loxone.png",
+        label: function () {
+            return this.name || "loxone";
+        },
+        oneditprepare: function () {
+            $('#node-input-loadstruct').on('click', loadStructureFile);
+            //TODO: check for already loaded structure and select the saved uuid
+        },
+        oneditsave: function () {
+
+            //not needed it taken from structure file
+            this.controlName = $('#node-input-control option:selected').text();
+            this.stateName = $('#node-input-uuid option:selected').text();
+
+            disableChangeEvents();
+        },
+        oneditcancel: function () {
+            disableChangeEvents();
+        }
+    });
 
     function loadStructureFile() {
 
@@ -82,7 +122,7 @@
 
         $controlSelect.empty();
 
-        console.log(miniserverStructure.controls);
+        //console.log(miniserverStructure);
 
         var options = [];
         for (var uuid in miniserverStructure.controls) {
@@ -130,12 +170,6 @@
     function disableChangeEvents() {
         $('#node-input-room, #node-input-category, #node-input-control').off('change');
     }
-</script>
-
-<script type="text/x-red" data-help-name="loxone-in">
-    <p>bla bla</p>
-
-
 </script>
 
 <script type="text/x-red" data-template-name="loxone-in">
@@ -203,148 +237,28 @@
     </div>
 
 
+
+
+
 </script>
 
+
 <script type="text/javascript">
-    RED.nodes.registerType('loxone-in', {
-        category: 'input',
-        color: '#83B817',
+    RED.nodes.registerType('loxone-miniserver', {
+        category: 'config',
         defaults: {
-            name: {value: ''},
-            miniserver: {type: 'loxone-miniserver', required: true},
-            control: {value: '', required: true},
-            controlName: {value: ''}, //TODO: take from structure file
-            stateName: {value: ''}, //TODO: take from structure file
-            uuid: {value: '', required: true}
+            host: {value: "", required: true},
+            port: {value: 80, required: true, validate: RED.validators.number()},
         },
-        inputs: 0,
-        outputs: 1,
-        icon: "loxone.png",
+        credentials: {
+            username: {type: "text", required: true},
+            password: {type: "password", required: true}
+        },
         label: function () {
-            return this.name || "loxone";
-        },
-        oneditprepare: function () {
-            $('#node-input-loadstruct').on('click', loadStructureFile);
-            //TODO: check for already loaded structure and select the saved uuid
-        },
-        oneditsave: function () {
-
-            //not needed it taken from structure file
-            this.controlName = $('#node-input-control option:selected').text();
-            this.stateName = $('#node-input-uuid option:selected').text();
-
-            disableChangeEvents();
-        },
-        oneditcancel: function () {
-            disableChangeEvents();
+            return this.host;
         }
     });
 </script>
-
-
-<script type="text/x-red" data-template-name="loxone-out">
-
-    <div class="form-row">
-        <label for="node-input-miniserver">
-            <i class="fa fa-globe"></i>
-            Miniserver
-        </label>
-        <input type="text" id="node-input-miniserver">
-    </div>
-
-    <div class="form-row">
-        <label for="node-input-loadstruct">
-        </label>
-        <button type="button" id="node-input-loadstruct" class="btn">
-            <i class="icon-refresh"></i>
-            Load Miniserver Structure
-        </button>
-    </div>
-
-    <div class="form-row">
-        <label for="node-input-room">
-            <i class="icon-home"></i>
-            Room
-        </label>
-        <select id="node-input-room">
-        </select>
-    </div>
-
-    <div class="form-row">
-        <label for="node-input-category">
-            <i class="icon-list"></i>
-            Category
-        </label>
-        <select id="node-input-category">
-        </select>
-    </div>
-
-    <div class="form-row">
-        <label for="node-input-control">
-            <i class="icon-cog"></i>
-            Control
-        </label>
-        <select id="node-input-control">
-        </select>
-    </div>
-
-    <div class="form-row">
-        <label for="node-input-uuid">
-            <i class="fa fa-sticky-note-o" ></i>
-            State
-        </label>
-        <select id="node-input-uuid">
-        </select>
-    </div>
-
-    <div class="form-row">
-        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
-        <input type="text" id="node-input-name" placeholder="Name">
-    </div>
-
-    <div class="form-row">
-        <span id="return-msg"></span>
-    </div>
-
-
-</script>
-
-<script type="text/javascript">
-    RED.nodes.registerType('loxone-out', {
-        category: 'output',
-        color: '#83B817',
-        defaults: {
-            name: {value: ''},
-            miniserver: {type: 'loxone-miniserver', required: true},
-            control: {value: '', required: true},
-            controlName: {value: ''}, //TODO: take from structure file
-            stateName: {value: ''}, //TODO: take from structure file
-            uuid: {value: '', required: true}
-        },
-        inputs: 1,
-        outputs: 0,
-        icon: "loxone.png",
-        label: function () {
-            return this.name || "loxone";
-        },
-        oneditprepare: function () {
-            $('#node-input-loadstruct').on('click', loadStructureFile);
-            //TODO: check for already loaded structure and select the saved uuid
-        },
-        oneditsave: function () {
-
-            //not needed it taken from structure file
-            this.controlName = $('#node-input-control option:selected').text();
-            this.stateName = $('#node-input-uuid option:selected').text();
-
-            disableChangeEvents();
-        },
-        oneditcancel: function () {
-            disableChangeEvents();
-        }
-    });
-</script>
-
 
 <script type="text/x-red" data-template-name="loxone-miniserver">
 
@@ -369,24 +283,6 @@
         <input type="password" id="node-config-input-password">
     </div>
 
-
-</script>
-
-<script type="text/javascript">
-    RED.nodes.registerType('loxone-miniserver', {
-        category: 'config',
-        defaults: {
-            host: {value: "", required: true},
-            port: {value: 80, required: true, validate: RED.validators.number()},
-        },
-        credentials: {
-            username: {type: "text", required: true},
-            password: {type: "password", required: true}
-        },
-        label: function () {
-            return this.host;
-        }
-    });
 </script>
 
 

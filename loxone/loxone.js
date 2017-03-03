@@ -15,7 +15,7 @@ module.exports = function (RED) {
             structure: {}
         };
 
-        if (configNode.connected) {
+        if (configNode.miniserverConnected) {
 
             /*
              console.log('connected, show debug');
@@ -63,15 +63,14 @@ module.exports = function (RED) {
         RED.nodes.createNode(this, config);
 
         var node = this;
-        node.connected = false;
-        node.authenticated = false;
-        node.connection = null;
+        node.miniserverConnected = false;
+        node.miniserverAuthenticated = false;
+        node.miniserverConnection = null;
         node.structureData = null;
         node.rooms = {};
         node.categories = {};
         node.controls = {};
         node._inputNodes = [];
-        node._outputNodes = [];
 
 
         var text_logger_limit = 100;
@@ -95,25 +94,16 @@ module.exports = function (RED) {
 
         client.on('connect', function () {
             node.log('connected to ' + config.host);
-            node.connected = true;
+            node.miniserverConnected = true;
         });
 
         client.on('authorized', function () {
             node.log('authorized');
-            node.authenticated = true;
-            node.connection = client;
+            node.miniserverAuthenticated = true;
+            node.miniserverConnection = client;
 
-            var i;
-            for (i = 0; i < node._inputNodes.length; i++) {
+            for (var i = 0; i < node._inputNodes.length; i++) {
                 node._inputNodes[i].status({
-                    fill: "green",
-                    shape: "dot",
-                    text: "connected"
-                });
-            }
-
-            for (i = 0; i < node._outputNodes.length; i++) {
-                node._outputNodes[i].status({
                     fill: "green",
                     shape: "dot",
                     text: "connected"
@@ -125,17 +115,8 @@ module.exports = function (RED) {
         client.on('connect_failed', function () {
             node.error('connect failed');
 
-            var i;
-            for (i = 0; i < node._inputNodes.length; i++) {
+            for (var i = 0; i < node._inputNodes.length; i++) {
                 node._inputNodes[i].status({
-                    fill: "red",
-                    shape: "circle",
-                    text: "connection failed"
-                });
-            }
-
-            for (i = 0; i < node._outputNodes.length; i++) {
-                node._outputNodes[i].status({
                     fill: "red",
                     shape: "circle",
                     text: "connection failed"
@@ -150,22 +131,13 @@ module.exports = function (RED) {
 
         client.on('close', function () {
             node.log("connection closed");
-            node.connected = false;
-            node.authenticated = false;
-            node.connection = null;
+            node.miniserverConnected = false;
+            node.miniserverAuthenticated = false;
+            node.miniserverConnection = null;
 
-            var i = 0;
-            for (i = 0; i < node._inputNodes.length; i++) {
+            for (var i = 0; i < node._inputNodes.length; i++) {
                 node._inputNodes[i].status({
-                    fill: "orange",
-                    shape: "circle",
-                    text: "connection closed"
-                });
-            }
-
-            for (i = 0; i < node._outputNodes.length; i++) {
-                node._outputNodes[i].status({
-                    fill: "orange",
+                    fill: "red",
                     shape: "circle",
                     text: "connection closed"
                 });
@@ -174,7 +146,7 @@ module.exports = function (RED) {
         });
 
         client.on('send', function (message) {
-            node.log("sent message: " + message);
+            //node.log("sent message: " + message);
         });
 
         client.on('message_text', function (message) {
@@ -268,22 +240,8 @@ module.exports = function (RED) {
         this._inputNodes.push(handler);
     };
 
-    LoxoneMiniserver.prototype.registerOutputNode = function (handler) {
-        //console.log('registered output node for ' + handler.uuid);
-        this._outputNodes.push(handler);
-    };
-
-
     LoxoneMiniserver.prototype.removeInputNode = function (handler) {
         this._inputNodes.forEach(function (node, i, inputNodes) {
-            if (node === handler) {
-                inputNodes.splice(i, 1);
-            }
-        });
-    };
-
-    LoxoneMiniserver.prototype.removeOutputNode = function (handler) {
-        this._outputNodes.forEach(function (node, i, inputNodes) {
             if (node === handler) {
                 inputNodes.splice(i, 1);
             }
@@ -350,44 +308,12 @@ module.exports = function (RED) {
             //register node to the desired connection
             node.miniserver.registerInputNode(node);
 
-            //this.miniserver.connection
+            //this.miniserver.miniserverConnection
             //TODO: think about unregistering the node from the connection
         }
 
     }
 
     RED.nodes.registerType("loxone-in", LoxoneInNode);
-
-    function LoxoneOutNode(config) {
-
-        RED.nodes.createNode(this, config);
-        var node = this;
-
-        if (!config.miniserver || !config.uuid) {
-            node.status({
-                fill: "red",
-                shape: "ring",
-                text: "config missing"
-            });
-            return;
-        }
-
-        node.uuid = config.uuid;
-        node.stateName = config.stateName; //tmp
-        node.controlName = config.controlName; //tmp
-
-        node.miniserver = RED.nodes.getNode(config.miniserver);
-
-        if (node.miniserver) {
-
-            //this.registerOutputNode(node);
-
-            this.on('input', function (msg) {
-                node.miniserver.connection.send_cmd(node.uuid, msg.payload);
-            });
-        }
-
-    }
-
-    RED.nodes.registerType("loxone-out", LoxoneOutNode);
+    //RED.nodes.registerType("loxone-out", LoxoneOutNode);
 };

@@ -32,12 +32,13 @@ Currently partially working, caveats
 -
 * You have to load the structure file every time you edit a node - It is cached in the 
 connection, but should be cached in node-red's editor.
+* Loxone-Out Node is working from node-red's side, but won't change the state of a Loxone switch item - needs testing.
 * The "connected" info under the node in the editor is buggy atm
 * Only `controls` are parsed, no `mediaServer`, `weatherServer`, etc. 
   Is this enough? 
 * ...
   
-I've discovered that a switch element emits it's current state (`active`) two times.
+I've discovered that a switch element emits it's current state (`active`) two times with the same value.
 The first one when the trigger-button is pressed and second one when the button is released.
 
 Maybe you can point me out, how to get `I1-I8` directly via the WS-API.
