@@ -33,11 +33,11 @@ module.exports = function (RED) {
                 state: 'ok',
                 msg: 'got miniserver structure',
                 /*
-                structure: {
-                    rooms: configNode.rooms,
-                    categories: configNode.categories,
-                    controls: configNode.controls
-                }*/
+                 structure: {
+                 rooms: configNode.rooms,
+                 categories: configNode.categories,
+                 controls: configNode.controls
+                 }*/
                 structure: configNode.structureData
             };
 
@@ -230,33 +230,6 @@ module.exports = function (RED) {
         client.on('update_event_daytimer', _update_event);
         client.on('update_event_weather', _update_event);
 
-
-        /*
-        function parseStructure(data) {
-
-            var uuid;
-
-            for (uuid in data.rooms) {
-                if (data.rooms.hasOwnProperty(uuid)) {
-                    node.rooms[uuid] = data.rooms[uuid].name;
-                }
-            }
-
-            for (uuid in data.cats) {
-                if (data.cats.hasOwnProperty(uuid)) {
-                    node.categories[uuid] = data.cats[uuid].name;
-                }
-            }
-
-            for (uuid in data.controls) {
-                if (data.controls.hasOwnProperty(uuid)) {
-                    node.controls[uuid] = data.controls[uuid];
-                }
-            }
-
-        }
-        */
-
     }
 
     RED.nodes.registerType("loxone-miniserver", LoxoneMiniserver, {
@@ -272,10 +245,12 @@ module.exports = function (RED) {
         this._inputNodes.push(handler);
     };
 
-    LoxoneMiniserver.prototype.registerOutputNode = function (handler) {
-        //console.log('registered output node for ' + handler.uuid);
-        this._outputNodes.push(handler);
-    };
+    /*
+     LoxoneMiniserver.prototype.registerOutputNode = function (handler) {
+     //console.log('registered output node for ' + handler.uuid);
+     this._outputNodes.push(handler);
+     };
+     */
 
 
     LoxoneMiniserver.prototype.removeInputNode = function (handler) {
@@ -286,22 +261,48 @@ module.exports = function (RED) {
         });
     };
 
-    LoxoneMiniserver.prototype.removeOutputNode = function (handler) {
-        this._outputNodes.forEach(function (node, i, inputNodes) {
-            if (node === handler) {
-                inputNodes.splice(i, 1);
-            }
-        });
-    };
+    /*
+     LoxoneMiniserver.prototype.removeOutputNode = function (handler) {
+     this._outputNodes.forEach(function (node, i, inputNodes) {
+     if (node === handler) {
+     inputNodes.splice(i, 1);
+     }
+     });
+     };
+     */
 
     LoxoneMiniserver.prototype.handleEvent = function (uuid, event) {
 
         for (var i = 0; i < this._inputNodes.length; i++) {
-            if (this._inputNodes[i].uuid == uuid) {
+            if (this._inputNodes[i].state == uuid) {
 
-                //console.log(this.controls[uuid]);
+                var ourControl = this._inputNodes[i].control;
+                var controlName, stateName, roomName, categoryName, controlDetails, controlType;
 
-                this.log('got "' + this._inputNodes[i].stateName + '" for "' + this._inputNodes[i].controlName + '"');
+                if (typeof this.structureData.controls[ourControl] != 'undefined') {
+
+                    //get information on control from structure
+                    var controlStructure = this.structureData.controls[ourControl];
+
+                    controlName = controlStructure.name;
+                    controlDetails = controlStructure.details;
+                    controlType = controlStructure.type;
+                    roomName = this.structureData.rooms[controlStructure.room].name;
+                    categoryName = this.structureData.cats[controlStructure.cat].name;
+
+                    //get state name
+                    for (stateName in controlStructure.states) {
+                        if (controlStructure.states[stateName] == this._inputNodes[i].state) {
+                            break;
+                        }
+                    }
+
+                    this.log('got "' + stateName + '" for "' + controlName + '"');
+
+                } else {
+                    this.log('got message for ' + this._inputNodes[i].state);
+                }
+
 
                 var payload;
                 try {
@@ -313,13 +314,12 @@ module.exports = function (RED) {
 
                 var msg = {
                     payload: payload,
-                    topic: this._inputNodes[i].controlName,
-                    state: this._inputNodes[i].stateName,
-                    //room: this.controls[uuid].room,
-                    //category: this.controls[uuid].cat
-
-                    //search states of all controls for our control
-                    //as the msg uuid is not the item uuid
+                    topic: controlName,
+                    state: stateName,
+                    room: roomName,
+                    category: categoryName,
+                    details: controlDetails,
+                    type: controlType
                 };
 
                 this._inputNodes[i].send(msg);
@@ -335,19 +335,10 @@ module.exports = function (RED) {
         RED.nodes.createNode(this, config);
         var node = this;
 
-        if (!config.miniserver || !config.uuid) {
-            node.status({
-                fill: "red",
-                shape: "ring",
-                text: "config missing"
-            });
-            return;
-        }
-
         node.status({});
-        node.uuid = config.uuid;
-        node.stateName = config.stateName; //tmp
-        node.controlName = config.controlName; //tmp
+        node.state = config.state;
+        node.control = config.control;
+        node.subControl = config.subControl;
 
         node.miniserver = RED.nodes.getNode(config.miniserver);
 
@@ -368,17 +359,8 @@ module.exports = function (RED) {
         RED.nodes.createNode(this, config);
         var node = this;
 
-        if (!config.miniserver || !config.uuid) {
-            node.status({
-                fill: "red",
-                shape: "ring",
-                text: "config missing"
-            });
-            return;
-        }
-
         node.status({});
-        node.uuid = config.uuid;
+        node.state = config.state;
         node.stateName = config.stateName; //tmp
         node.controlName = config.controlName; //tmp
 
