@@ -69,9 +69,6 @@ module.exports = function (RED) {
         node.authenticated = false;
         node.connection = null;
         node.structureData = null;
-        //node.rooms = {};
-        //node.categories = {};
-        //node.controls = {};
         node._inputNodes = [];
         node._outputNodes = [];
 
@@ -360,9 +357,8 @@ module.exports = function (RED) {
         var node = this;
 
         node.status({});
-        node.state = config.state;
-        node.stateName = config.stateName; //tmp
-        node.controlName = config.controlName; //tmp
+        node.control = config.control;
+        node.subControl = config.subControl;
 
         node.miniserver = RED.nodes.getNode(config.miniserver);
 
@@ -371,7 +367,7 @@ module.exports = function (RED) {
             //this.registerOutputNode(node);
 
             this.on('input', function (msg) {
-                node.miniserver.connection.send_cmd(node.uuid, msg.payload);
+                node.miniserver.connection.send_cmd(node.control, msg.payload);
             });
         }
 
