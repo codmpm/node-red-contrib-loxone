@@ -1,72 +1,53 @@
 <script type="text/javascript">
 
-    var miniserverStructure = {};
+    var struct = {};
 
-    function loadStructureFile() {
+    function getStructureFile() {
 
+        //TODO: check for already loaded structure
         var configNodeId = $('#node-input-miniserver').val();
-
         var url = '/struct?id=' + configNodeId;
 
-        $.getJSON(url).done(function (data) {
+        $.ajax({
+            dataType: "json",
+            async: false,
+            url: url
+        }).done(function (data) {
 
-            //console.log(data);
+                //console.log(data);
+                struct = data;
 
-            if (data.state == 'ok') {
-                miniserverStructure = data.structure;
+                if (data.state == 'ok' && data.structure.length) {
 
-                var $roomSelect = $('#node-input-room');
-                var $categorySelect = $('#node-input-category');
-                var $controlSelect = $('#node-input-control');
-                var uuid;
+                    var $roomSelect = $('#node-input-room');
+                    var $categorySelect = $('#node-input-category');
 
-                $roomSelect.empty();
-                $categorySelect.empty();
-                $controlSelect.empty();
+                    var uuid;
 
-                if (
-                    typeof data.structure.rooms != 'undefined' &&
-                    typeof data.structure.categories != 'undefined' &&
-                    typeof data.structure.controls != 'undefined'
-                ) {
-                    //populate form elements
+                    $roomSelect.empty();
+                    $categorySelect.empty();
+
                     $roomSelect.append('<option value=""></option>');
                     for (uuid in data.structure.rooms) {
                         if (data.structure.rooms.hasOwnProperty(uuid)) {
-                            $roomSelect.append('<option value="' + uuid + '">' +
-                                data.structure.rooms[uuid] +
-                                '</option>');
+                            $roomSelect.append('<option value="' + uuid + '">' + data.structure.rooms[uuid].name + '</option>');
                         }
                     }
 
                     $categorySelect.append('<option value=""></option>');
-                    for (uuid in data.structure.categories) {
+                    for (uuid in data.structure.cats) {
                         if (data.structure.categories.hasOwnProperty(uuid)) {
-                            $categorySelect.append('<option value="' + uuid + '">' +
-                                data.structure.categories[uuid] +
-                                '</option>');
+                            $categorySelect.append('<option value="' + uuid + '">' + data.structure.categories[uuid].name + '</option>');
                         }
                     }
 
-                    $controlSelect.append('<option value=""></option>');
-                    for (uuid in data.structure.controls) {
-                        if (data.structure.controls.hasOwnProperty(uuid)) {
-                            $controlSelect.append('<option value="' + uuid + '">' +
-                                data.structure.controls[uuid].name +
-                                '</option>');
-                        }
-                    }
                 }
 
-                $('#node-input-room, #node-input-category').on('change', fillControl);
-                $controlSelect.on('change', fillState);
-            }
-
-            $('#return-msg').text(data.msg);
-
+                $('#return-msg').text(data.msg);
 
         });
 
+        return struct;
 
     }
 
@@ -84,16 +65,16 @@
 
         $controlSelect.empty();
 
-        console.log(miniserverStructure.controls);
+        console.log(struct.controls);
 
         var options = [];
-        for (var uuid in miniserverStructure.controls) {
+        for (var uuid in struct.controls) {
             if (
-                miniserverStructure.controls.hasOwnProperty(uuid) &&
-                ((roomVal.length && miniserverStructure.controls[uuid].room == roomVal) || !roomVal.length) &&
-                ((categoryVal.length && miniserverStructure.controls[uuid].cat == categoryVal) || !categoryVal.length)
+                struct.controls.hasOwnProperty(uuid) &&
+                ((roomVal.length && struct.controls[uuid].room == roomVal) || !roomVal.length) &&
+                ((categoryVal.length && struct.controls[uuid].cat == categoryVal) || !categoryVal.length)
             ) {
-                options.push('<option value="' + uuid + '">' + miniserverStructure.controls[uuid].name + '</option>');
+                options.push('<option value="' + uuid + '">' + struct.controls[uuid].name + '</option>');
             }
         }
 
@@ -113,9 +94,9 @@
         $stateSelect.empty();
         $stateSelect.append('<option value=""></option>');
 
-        if (typeof miniserverStructure.controls[this.value] != 'undefined') {
+        if (typeof struct.controls[this.value] != 'undefined') {
 
-            var control = miniserverStructure.controls[this.value];
+            var control = struct.controls[this.value];
 
             for (var statename in control.states) {
                 if (control.states.hasOwnProperty(statename)) {
@@ -138,6 +119,10 @@
     <p>bla bla</p>
 
 
+
+
+
+
 </script>
 
 <script type="text/x-red" data-template-name="loxone-in">
@@ -148,15 +133,6 @@
             Miniserver
         </label>
         <input type="text" id="node-input-miniserver">
-    </div>
-
-    <div class="form-row">
-        <label for="node-input-loadstruct">
-        </label>
-        <button type="button" id="node-input-loadstruct" class="btn">
-            <i class="icon-refresh"></i>
-            Load Miniserver Structure
-        </button>
     </div>
 
     <div class="form-row">
@@ -205,6 +181,10 @@
     </div>
 
 
+
+
+
+
 </script>
 
 <script type="text/javascript">
@@ -226,8 +206,29 @@
             return this.name || "loxone";
         },
         oneditprepare: function () {
-            $('#node-input-loadstruct').on('click', loadStructureFile);
-            //TODO: check for already loaded structure and select the saved uuid
+            var struct = getStructureFile();
+
+            $('#node-input-room, #node-input-category').on('change', fillControl);
+
+
+            var $controlSelect = $('#node-input-control');
+
+
+            $controlSelect.empty();
+
+            $controlSelect.append('<option value=""></option>');
+            for (uuid in struct.controls) {
+                if (struct.controls.hasOwnProperty(uuid)) {
+                    var control = $('<option value="' + uuid + '">' + struct.controls[uuid].name + '</option>');
+
+                    $controlSelect.append(control);
+                }
+            }
+
+            $controlSelect.on('change', fillState);
+
+
+            //TODO: fill selects accordingly
         },
         oneditsave: function () {
 
@@ -255,15 +256,6 @@
     </div>
 
     <div class="form-row">
-        <label for="node-input-loadstruct">
-        </label>
-        <button type="button" id="node-input-loadstruct" class="btn">
-            <i class="icon-refresh"></i>
-            Load Miniserver Structure
-        </button>
-    </div>
-
-    <div class="form-row">
         <label for="node-input-room">
             <i class="icon-home"></i>
             Room
@@ -282,18 +274,9 @@
     </div>
 
     <div class="form-row">
-        <label for="node-input-control">
+        <label for="node-input-uuid">
             <i class="icon-cog"></i>
             Control
-        </label>
-        <select id="node-input-control">
-        </select>
-    </div>
-
-    <div class="form-row">
-        <label for="node-input-uuid">
-            <i class="fa fa-sticky-note-o" ></i>
-            State
         </label>
         <select id="node-input-uuid">
         </select>
@@ -307,6 +290,10 @@
     <div class="form-row">
         <span id="return-msg"></span>
     </div>
+
+
+
+
 
 
 </script>
@@ -330,8 +317,24 @@
             return this.name || "loxone";
         },
         oneditprepare: function () {
-            $('#node-input-loadstruct').on('click', loadStructureFile);
-            //TODO: check for already loaded structure and select the saved uuid
+            var struct = getStructureFile();
+
+            $('#node-input-room, #node-input-category').on('change', fillControl);
+
+            var $controlSelect = $('#node-input-uuid');
+            $controlSelect.empty();
+
+            $controlSelect.append('<option value=""></option>');
+            for (uuid in struct.controls) {
+                if (struct.controls.hasOwnProperty(uuid)) {
+                    //uuid = uuidAction
+                    var control = $('<option value="' + uuid + '">' + struct.controls[uuid].name + '</option>');
+
+                    $controlSelect.append(control);
+                }
+            }
+            //TODO: fill selects accordingly
+
         },
         oneditsave: function () {
 
@@ -370,6 +373,10 @@
         <label for="node-config-input-port"><i class="fa fa-lock"></i> Password</label>
         <input type="password" id="node-config-input-password">
     </div>
+
+
+
+
 
 
 </script>

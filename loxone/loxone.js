@@ -32,11 +32,13 @@ module.exports = function (RED) {
             result = {
                 state: 'ok',
                 msg: 'got miniserver structure',
+                /*
                 structure: {
                     rooms: configNode.rooms,
                     categories: configNode.categories,
                     controls: configNode.controls
-                }
+                }*/
+                structure: configNode.structureData
             };
 
         }
@@ -67,9 +69,9 @@ module.exports = function (RED) {
         node.authenticated = false;
         node.connection = null;
         node.structureData = null;
-        node.rooms = {};
-        node.categories = {};
-        node.controls = {};
+        //node.rooms = {};
+        //node.categories = {};
+        //node.controls = {};
         node._inputNodes = [];
         node._outputNodes = [];
 
@@ -220,7 +222,7 @@ module.exports = function (RED) {
         client.on('get_structure_file', function (data) {
             node.log("got structure file " + data.lastModified);
             node.structureData = data;
-            parseStructure(data);
+            //parseStructure(data);
         });
 
         client.on('update_event_value', _update_event);
@@ -229,6 +231,7 @@ module.exports = function (RED) {
         client.on('update_event_weather', _update_event);
 
 
+        /*
         function parseStructure(data) {
 
             var uuid;
@@ -252,6 +255,7 @@ module.exports = function (RED) {
             }
 
         }
+        */
 
     }
 
