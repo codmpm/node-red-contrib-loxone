@@ -5,9 +5,8 @@ node-red. It uses [node-lox-ws-api](https://github.com/alladdin/node-lox-ws-api)
 by Ladislav Dokulil based on Loxone's documenation for the [Websocket API](https://www.loxone.com/dede/wp-content/uploads/sites/2/2016/08/loxone-communicating-with-the-miniserver.pdf).
 
 It enables you to connect the Loxone Miniserver directly to node-red and work with the data
-on occuring events. For example you could hook-up an mqtt-node to push Loxone's data to a mqtt-broker.
-Also you could push data back to the miniserver to let it do something caus somebody tweeted
-something...
+on occuring events. For example you could hook-up an mqtt-node to push Loxone's data to an mqtt-broker.
+Also you could, for example, switch something in the miniserver cause somebody tweeted something...
 
 The connection to the miniserver is encrypted (hashed) via node-lox-ws-api, AES-256-CBC is possible. It is
 kept alive via `node-lox-ws-api`.
@@ -38,8 +37,8 @@ Tested with loxone-config V8.1.11.11
 The structure file can also be retrieved via `http://<miniserver>/data/LoxAPP3.json`.
 An explanation of the file can be found [here](https://www.loxone.com/dede/wp-content/uploads/sites/2/2016/08/loxone-structure-file.pdf)
 
-**You will get the data from Loxone's websocket _as is_. There is no abstraction layer!**
-This is not planned for the future. So please know how to handle the data according to the documentation.
+**You will get the data from Loxone's websocket _as is_. There is and will be no abstraction layer!**
+So please know how to handle the data according to the documentation.
 
 The `msg.payload` holds the value retrieved from the miniserver. The `msg`-object itself holds more information of
 the selected control. For example:
@@ -109,7 +108,7 @@ Contributing
 
 Credits
 -
-Patrik Mayer, 2017 - I'm not affiliated to [Loxone](https://www.loxone.com/) in any way.
+Patrik Mayer, 2017 - I'm not affiliated with [Loxone](https://www.loxone.com/) in any way.
 
 Many thanks to [Nick O'Leary](https://github.com/knolleary), [Dave Conway-Jones](https://github.com/dceejay/)
  and everyone else from the node-red Slack-Channel. 
