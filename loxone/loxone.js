@@ -79,11 +79,10 @@ module.exports = function (RED) {
         var ws_auth = 'Hash';
 
 
-        node.log('connecting miniserver at ' + config.host);
+        node.log('connecting miniserver at ' + config.host + ':' + config.port);
 
-        //TODO: add port to connection
         var client = new node_lox_ws_api(
-            config.host,
+            config.host + ':' + config.port,
             node.credentials.username,
             node.credentials.password,
             true,
