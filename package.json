@@ -1,10 +1,10 @@
 {
   "name": "node-red-contrib-loxone",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "connecting the loxone miniserver",
   "license": "MIT",
   "keywords": [
-
+      "node-red", "loxone"
   ],
   "node-red": {
     "nodes": {
