@@ -167,8 +167,7 @@ module.exports = function (RED) {
 
         client.on('get_structure_file', function (data) {
             node.log("got structure file " + data.lastModified);
-            node.structureData = data;
-            //parseStructure(data);
+            node.structureData = node.prepareStructure(data);
         });
 
         client.on('update_event_value', _update_event);
@@ -291,6 +290,36 @@ module.exports = function (RED) {
 
     };
 
+    LoxoneMiniserver.prototype.prepareStructure = function (data) {
+        var structure = {
+            rooms: data.rooms,
+            cats: data.cats,
+            controls: {},
+        };
+
+        for (var uuid in data.controls){
+            if (!data.controls.hasOwnProperty(uuid)){
+                continue;
+            }
+
+            structure.controls[uuid] = data.controls[uuid];
+
+            if (data.controls[uuid].hasOwnProperty('subControls')){
+                for (var sub_uuid in data.controls[uuid].subControls){
+                    if (!data.controls[uuid].subControls.hasOwnProperty(sub_uuid)){
+                        continue;
+                    }
+
+                    structure.controls[sub_uuid] = data.controls[uuid].subControls[sub_uuid];
+                    structure.controls[sub_uuid].parent = uuid;
+                    structure.controls[sub_uuid].room = data.controls[uuid].room;
+                    structure.controls[sub_uuid].cat = data.controls[uuid].cat;
+                }
+            }
+        }
+
+        return structure;
+    };
 
     function LoxoneInNode(config) {
 
@@ -300,7 +329,6 @@ module.exports = function (RED) {
         node.status({});
         node.state = config.state;
         node.control = config.control;
-        node.subControl = config.subControl;
 
         node.miniserver = RED.nodes.getNode(config.miniserver);
 
@@ -326,7 +354,6 @@ module.exports = function (RED) {
 
         node.status({});
         node.control = config.control;
-        node.subControl = config.subControl;
 
         node.miniserver = RED.nodes.getNode(config.miniserver);
 
