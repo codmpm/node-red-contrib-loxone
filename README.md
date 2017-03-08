@@ -23,7 +23,7 @@ Here's a small video with the Loxone Webinterface on the left, Loxone-Config wit
 middle and node-red with node-red-dashboard on the right: https://cloud.codm.de/nextcloud/index.php/s/hNO2hIgnGIDWGqM
 
 Here is another example of reading the current used bandwith of a FritzBox-Router and display 
-  this data in the visualisation of the Miniserver:  https://cloud.codm.de/nextcloud/inde...XoNoMLilinpU4v
+ this data in the visualisation of the Miniserver:  https://cloud.codm.de/nextcloud/index.php/s/5XoNoMLilinpU4v
   
 ![image of node-red flow for fritzbox](node-red-contrib-loxone-demo-fritz.png)  
 
