@@ -1,7 +1,7 @@
 {
   "name": "node-red-contrib-loxone",
-  "version": "0.0.3",
-  "description": "connecting the loxone miniserver",
+  "version": "0.0.4",
+  "description": "Connecting the Loxone Miniserver to node-red via the Websocke API",
   "license": "MIT",
   "keywords": [
       "node-red", "loxone"

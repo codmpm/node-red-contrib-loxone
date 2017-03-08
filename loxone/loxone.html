@@ -47,7 +47,7 @@
                         for (uuid in data.structure.controls) {
                             if (data.structure.controls.hasOwnProperty(uuid)) {
                                 var $option = $('<option value="' + uuid + '">' +
-                                    (data.structure.controls[uuid].parent ? data.structure.controls[uuid].parent.name + ': ' : '') +
+                                    (data.structure.controls[uuid].parent ? ' └─ ' : '') +
                                     data.structure.controls[uuid].name +
                                     '</option>');
                                 $option.appendTo($controlSelect);
@@ -92,7 +92,7 @@
                 ((categoryVal.length && msStructure.controls[uuid].cat == categoryVal) || !categoryVal.length)
             ) {
                 options.push('<option value="' + uuid + '">' +
-                    (msStructure.controls[uuid].parent ? ' └── ' : '') +
+                    (msStructure.controls[uuid].parent ? ' └─ ' : '') +
                     msStructure.controls[uuid].name +
                     '</option>'
                 );
