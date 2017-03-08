@@ -72,7 +72,6 @@ module.exports = function (RED) {
         node._inputNodes = [];
         node._outputNodes = [];
 
-
         var text_logger_limit = 100;
         //TODO: put auth mode in config
         //var ws_auth = config.encrypted ? 'AES-256-CBC' : 'Hash';
@@ -101,45 +100,12 @@ module.exports = function (RED) {
             node.authenticated = true;
             node.connection = client;
 
-            var i;
-            for (i = 0; i < node._inputNodes.length; i++) {
-                node._inputNodes[i].status({
-                    fill: "green",
-                    shape: "dot",
-                    text: "connected"
-                });
-            }
-
-            for (i = 0; i < node._outputNodes.length; i++) {
-                node._outputNodes[i].status({
-                    fill: "green",
-                    shape: "dot",
-                    text: "connected"
-                });
-            }
-
+            node.set_connection_state("green", "connected", "dot");
         });
 
         client.on('connect_failed', function () {
             node.error('connect failed');
-
-            var i;
-            for (i = 0; i < node._inputNodes.length; i++) {
-                node._inputNodes[i].status({
-                    fill: "red",
-                    shape: "circle",
-                    text: "connection failed"
-                });
-            }
-
-            for (i = 0; i < node._outputNodes.length; i++) {
-                node._outputNodes[i].status({
-                    fill: "red",
-                    shape: "circle",
-                    text: "connection failed"
-                });
-            }
-
+            node.set_connection_state("red", "connection failed", "ring");
         });
 
         client.on('connection_error', function (error) {
@@ -152,23 +118,7 @@ module.exports = function (RED) {
             node.authenticated = false;
             node.connection = null;
 
-            var i = 0;
-            for (i = 0; i < node._inputNodes.length; i++) {
-                node._inputNodes[i].status({
-                    fill: "orange",
-                    shape: "circle",
-                    text: "connection closed"
-                });
-            }
-
-            for (i = 0; i < node._outputNodes.length; i++) {
-                node._outputNodes[i].status({
-                    fill: "orange",
-                    shape: "circle",
-                    text: "connection closed"
-                });
-            }
-
+            node.set_connection_state("yellow", "connection closed", "ring");
         });
 
         client.on('send', function (message) {
@@ -226,6 +176,15 @@ module.exports = function (RED) {
         client.on('update_event_daytimer', _update_event);
         client.on('update_event_weather', _update_event);
 
+        this.on('close', function(done) {
+            if (node.connected){
+                client.once('close', function() {
+                    done();
+                });
+                client.close();
+            }
+        });
+
     }
 
     RED.nodes.registerType("loxone-miniserver", LoxoneMiniserver, {
@@ -237,19 +196,15 @@ module.exports = function (RED) {
 
 
     LoxoneMiniserver.prototype.registerInputNode = function (handler) {
-        //console.log('registered input node for ' + handler.uuid);
         this._inputNodes.push(handler);
     };
 
-    /*
-     LoxoneMiniserver.prototype.registerOutputNode = function (handler) {
-     //console.log('registered output node for ' + handler.uuid);
-     this._outputNodes.push(handler);
-     };
-     */
+    LoxoneMiniserver.prototype.registerOutputNode = function (handler) {
+        this._outputNodes.push(handler);
+    };
 
 
-    LoxoneMiniserver.prototype.removeInputNode = function (handler) {
+    LoxoneMiniserver.prototype.deregisterInputNode = function (handler) {
         this._inputNodes.forEach(function (node, i, inputNodes) {
             if (node === handler) {
                 inputNodes.splice(i, 1);
@@ -257,15 +212,26 @@ module.exports = function (RED) {
         });
     };
 
-    /*
-     LoxoneMiniserver.prototype.removeOutputNode = function (handler) {
-     this._outputNodes.forEach(function (node, i, inputNodes) {
-     if (node === handler) {
-     inputNodes.splice(i, 1);
-     }
-     });
-     };
-     */
+    LoxoneMiniserver.prototype.deregisterOutputNode = function (handler) {
+        this._outputNodes.forEach(function (node, i, outputNodes) {
+            if (node === handler) {
+                outputNodes.splice(i, 1);
+            }
+        });
+    };
+
+    LoxoneMiniserver.prototype.set_connection_state = function(color, text, shape = 'dot'){
+        var set_connection_state = function(item) {
+            item.status({
+                fill: color,
+                shape: shape,
+                text: text
+            });
+        };
+
+        this._inputNodes.forEach(set_connection_state);
+        this._outputNodes.forEach(set_connection_state);
+    };
 
     LoxoneMiniserver.prototype.handleEvent = function (uuid, event) {
 
@@ -339,11 +305,14 @@ module.exports = function (RED) {
         node.miniserver = RED.nodes.getNode(config.miniserver);
 
         if (node.miniserver) {
-            //register node to the desired connection
             node.miniserver.registerInputNode(node);
 
-            //this.miniserver.connection
-            //TODO: think about unregistering the node from the connection
+            this.on('close', function(done) {
+                if (node.miniserver) {
+                    node.miniserver.deregisterInputNode(node);
+                }
+                done();
+            });
         }
 
     }
@@ -363,10 +332,17 @@ module.exports = function (RED) {
 
         if (node.miniserver) {
 
-            //this.registerOutputNode(node);
+            node.miniserver.registerOutputNode(node);
 
             this.on('input', function (msg) {
                 node.miniserver.connection.send_cmd(node.control, msg.payload);
+            });
+
+            this.on('close', function(done) {
+                if (node.miniserver) {
+                    node.miniserver.deregisterOutputNode(node);
+                }
+                done();
             });
         }
 
