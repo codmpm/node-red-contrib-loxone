@@ -60,7 +60,7 @@ the selected control. For example:
         type: "InfoOnlyAnalog"
     }
     
-I've discovered that a switch element emits it's current state (`active`) two times with the same value.
+I've discovered that a switch element emits its current state (`active`) two times with the same value.
 The first one when the trigger-button is pressed and second one when the button is released - so 
 watch out for race conditions in your flow.
 Also keep in mind, that this element sends `1/0` but expects to be fed with `On/Off/Pulse`.
@@ -101,9 +101,9 @@ Contributing
 -
 
 1. Fork it!
-2. Create your feature branch: git checkout -b my-new-feature
-3. Commit your changes: git commit -am 'Add some feature'
-4. Push to the branch: git push origin my-new-feature
+2. Create your feature branch: `git checkout -b my-new-feature`
+3. Commit your changes: `git commit -am 'Add some feature'`
+4. Push to the branch: `git push origin my-new-feature`
 5. Submit a pull request :D
 
 Credits
