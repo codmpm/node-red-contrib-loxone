@@ -30,8 +30,8 @@ Here is another example of reading the current used bandwith of a FritzBox-Route
 Currently working parts
 -
 * Configure a miniserver connection 
-* Loxone-In node (no subcontrols)
-* Loxone-Out node (no subcontrols)
+* Loxone-In node ~~(no subcontrols)~~
+* Loxone-Out node ~~(no subcontrols)~~
 * Loxone-In: Select a control and a state to "listen to" which then gets passed to node-red
 * Loxone-Out: Select a control and feed it commands according to the [structure file](https://www.loxone.com/dede/wp-content/uploads/sites/2/2016/08/loxone-structure-file.pdf?x48792)
 
