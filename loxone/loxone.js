@@ -50,12 +50,12 @@ module.exports = function (RED) {
     function LoxoneMiniserver(config) {
 
 
-        function _update_event(uuid, evt) {
+        function _updateEvent(uuid, evt) {
             //node.log("received update event: " + JSON.stringify(evt) + ':' + uid);
             node.handleEvent(uuid, evt);
         }
 
-        function _limit_string(text, limit) {
+        function _limitString(text, limit) {
             if (text.length <= limit) {
                 return text;
             }
@@ -73,10 +73,7 @@ module.exports = function (RED) {
         node._outputNodes = [];
 
         var text_logger_limit = 100;
-        //TODO: put auth mode in config
-        //var ws_auth = config.encrypted ? 'AES-256-CBC' : 'Hash';
-        var ws_auth = 'Hash';
-
+        var ws_auth = config.encrypted ? 'AES-256-CBC' : 'Hash';
 
         node.log('connecting miniserver at ' + config.host + ':' + config.port);
 
@@ -91,7 +88,7 @@ module.exports = function (RED) {
         client.connect();
 
         client.on('connect', function () {
-            node.log('connected to ' + config.host);
+            node.log('connected to ' + config.host + ':' + config.port);
             node.connected = true;
         });
 
@@ -100,12 +97,12 @@ module.exports = function (RED) {
             node.authenticated = true;
             node.connection = client;
 
-            node.set_connection_state("green", "connected", "dot");
+            node.setConnectionState("green", "connected", "dot");
         });
 
         client.on('connect_failed', function () {
             node.error('connect failed');
-            node.set_connection_state("red", "connection failed", "ring");
+            node.setConnectionState("red", "connection failed", "ring");
         });
 
         client.on('connection_error', function (error) {
@@ -118,7 +115,7 @@ module.exports = function (RED) {
             node.authenticated = false;
             node.connection = null;
 
-            node.set_connection_state("yellow", "connection closed", "ring");
+            node.setConnectionState("yellow", "connection closed", "ring");
         });
 
         client.on('send', function (message) {
@@ -131,7 +128,7 @@ module.exports = function (RED) {
             };
             switch (message.type) {
                 case 'json':
-                    data.json = _limit_string(JSON.stringify(message.json), text_logger_limit);
+                    data.json = _limitString(JSON.stringify(message.json), text_logger_limit);
                     node.log("received text message: " + data.json);
 
                     break;
@@ -141,7 +138,7 @@ module.exports = function (RED) {
                     data.code = message.code;
                     break;
                 default:
-                    data.text = _limit_string(message.data, text_logger_limit);
+                    data.text = _limitString(message.data, text_logger_limit);
                     node.log("received text message: " + data.text);
             }
 
@@ -170,14 +167,14 @@ module.exports = function (RED) {
             node.structureData = node.prepareStructure(data);
         });
 
-        client.on('update_event_value', _update_event);
-        client.on('update_event_text', _update_event);
-        client.on('update_event_daytimer', _update_event);
-        client.on('update_event_weather', _update_event);
+        client.on('update_event_value', _updateEvent);
+        client.on('update_event_text', _updateEvent);
+        client.on('update_event_daytimer', _updateEvent);
+        client.on('update_event_weather', _updateEvent);
 
-        this.on('close', function(done) {
-            if (node.connected){
-                client.once('close', function() {
+        this.on('close', function (done) {
+            if (node.connected) {
+                client.once('close', function () {
                     done();
                 });
                 client.close();
@@ -219,8 +216,8 @@ module.exports = function (RED) {
         });
     };
 
-    LoxoneMiniserver.prototype.set_connection_state = function(color, text, shape = 'dot'){
-        var set_connection_state = function(item) {
+    LoxoneMiniserver.prototype.setConnectionState = function (color, text, shape = 'dot') {
+        var newState = function (item) {
             item.status({
                 fill: color,
                 shape: shape,
@@ -228,8 +225,8 @@ module.exports = function (RED) {
             });
         };
 
-        this._inputNodes.forEach(set_connection_state);
-        this._outputNodes.forEach(set_connection_state);
+        this._inputNodes.forEach(newState);
+        this._outputNodes.forEach(newState);
     };
 
     LoxoneMiniserver.prototype.handleEvent = function (uuid, event) {
@@ -297,16 +294,16 @@ module.exports = function (RED) {
             controls: {},
         };
 
-        for (var uuid in data.controls){
-            if (!data.controls.hasOwnProperty(uuid)){
+        for (var uuid in data.controls) {
+            if (!data.controls.hasOwnProperty(uuid)) {
                 continue;
             }
 
             structure.controls[uuid] = data.controls[uuid];
 
-            if (data.controls[uuid].hasOwnProperty('subControls')){
-                for (var sub_uuid in data.controls[uuid].subControls){
-                    if (!data.controls[uuid].subControls.hasOwnProperty(sub_uuid)){
+            if (data.controls[uuid].hasOwnProperty('subControls')) {
+                for (var sub_uuid in data.controls[uuid].subControls) {
+                    if (!data.controls[uuid].subControls.hasOwnProperty(sub_uuid)) {
                         continue;
                     }
 
@@ -335,7 +332,7 @@ module.exports = function (RED) {
         if (node.miniserver) {
             node.miniserver.registerInputNode(node);
 
-            this.on('close', function(done) {
+            this.on('close', function (done) {
                 if (node.miniserver) {
                     node.miniserver.deregisterInputNode(node);
                 }
@@ -365,7 +362,7 @@ module.exports = function (RED) {
                 node.miniserver.connection.send_cmd(node.control, msg.payload);
             });
 
-            this.on('close', function(done) {
+            this.on('close', function (done) {
                 if (node.miniserver) {
                     node.miniserver.deregisterOutputNode(node);
                 }

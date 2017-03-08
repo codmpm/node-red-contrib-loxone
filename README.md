@@ -75,7 +75,7 @@ ToDo
 -
 * Convenience / Testing!
 * ~~More info in `msg`-object based on structure file~~
-* Configuration of the encryption method - currently only "Hash"
+* ~~Configuration of the encryption method - currently only "Hash"~~
 * ~~Loxone-Out~~ needs testing
 * ~~SubControls~~ needs testing
 * better logging, more failsaveness, more user info
