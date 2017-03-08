@@ -16,13 +16,16 @@ kept alive via `node-lox-ws-api`.
 I've only tested it with a Temperature Sensor and a switch module so far as I don't 
 have an own Loxone installation. Gladly a friend of mine lent me his spare miniserver.
 
-![image of node-red editor](node-red-loxone-editor.png)
-![image node-red dashboard](node-red-loxone-dashboard.png)
+![image of node-red editor](node-red-contrib-loxone-editor.png)
+![image node-red dashboard](node-red-contrib-loxone-dashboard.png)
 
 Here's a small video with the Loxone Webinterface on the left, Loxone-Config with LiveView enabled in the 
-middle and node-red with node-red-dashboard on the right.
+middle and node-red with node-red-dashboard on the right: https://cloud.codm.de/nextcloud/index.php/s/hNO2hIgnGIDWGqM
 
-https://cloud.codm.de/nextcloud/index.php/s/hNO2hIgnGIDWGqM
+Here is another example of reading the current used bandwith of a FritzBox-Router and display 
+  this data in the visualisation of the Miniserver:  https://cloud.codm.de/nextcloud/inde...XoNoMLilinpU4v
+  
+![image of node-red flow for fritzbox](node-red-contrib-loxone-demo-fritz.png)  
 
 Currently working parts
 -
