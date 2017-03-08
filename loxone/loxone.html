@@ -47,6 +47,7 @@
                         for (uuid in data.structure.controls) {
                             if (data.structure.controls.hasOwnProperty(uuid)) {
                                 var $option = $('<option value="' + uuid + '">' +
+                                    (data.structure.controls[uuid].parent ? ' └── ' : '') +
                                     data.structure.controls[uuid].name +
                                     '</option>');
                                 $option.appendTo($controlSelect);
@@ -90,7 +91,11 @@
                 ((roomVal.length && msStructure.controls[uuid].room == roomVal) || !roomVal.length) &&
                 ((categoryVal.length && msStructure.controls[uuid].cat == categoryVal) || !categoryVal.length)
             ) {
-                options.push('<option value="' + uuid + '">' + msStructure.controls[uuid].name + '</option>');
+                options.push('<option value="' + uuid + '">' +
+                    (msStructure.controls[uuid].parent ? ' └── ' : '') +
+                    msStructure.controls[uuid].name +
+                    '</option>'
+                );
             }
         }
 
@@ -237,7 +242,6 @@
             name: {value: ''},
             miniserver: {type: 'loxone-miniserver', required: true},
             control: {value: '', required: true},
-            subControl: {value: ''},
             state: {value: '', required: true}
         },
         inputs: 0,
@@ -348,7 +352,6 @@
             name: {value: ''},
             miniserver: {type: 'loxone-miniserver', required: true},
             control: {value: '', required: true},
-            subControl: {value: ''}
         },
         inputs: 1,
         outputs: 0,

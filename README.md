@@ -67,7 +67,7 @@ Currently partially working, caveats
 * The "connected" info under the node in the editor is buggy atm
 * Only `controls` are parsed, no `mediaServer`, `weatherServer`, etc. 
   Is this enough? 
-* No `subcontrols`, yet
+* ~~No `subcontrols`, yet~~
 * There's only marginal error handling for the editor
 
 
@@ -77,7 +77,7 @@ ToDo
 * ~~More info in `msg`-object based on structure file~~
 * Configuration of the encryption method - currently only "Hash"
 * ~~Loxone-Out~~ needs testing
-* SubControls
+* ~~SubControls~~ needs testing
 * better logging, more failsaveness, more user info
 * See `TODO` comments in the code
 * ...
