@@ -402,8 +402,7 @@
 
 <script type="text/x-red" data-help-name="loxone-miniserver">
     <p>
-        Configure the Miniserver to connect to, the default port is 80. The credentials will be hashed with a key given by the Miniserver.
-        If you turn on AES, they will be encrypted.<br>
+        Configure the Miniserver to connect to, the default port is 80. The credentials will be hashed with a key given by the Miniserver.<br>
         <br>
         A websocket connection will be made and kept alive. All communication with the Miniserver will be handled
         over this connection as described in Loxones <a href="https://www.loxone.com/dede/wp-content/uploads/sites/2/2016/08/loxone-communicating-with-the-miniserver.pdf" target="_blank">
@@ -411,7 +410,7 @@
         The structure of your Miniserver will be loaded on connecting an is selectable on adding an in- or out-node.
         <br>
         <br>
-        If you want, enable AES-256-CBC encryption. Otherwise only hashing of the credentials and commands is done.<br>
+        If you want, enable AES-256-CBC encryption and the commands/values get encrypted. Otherwise only hashing of the commands is done.<br>
         <br>
         <b>The miniserver is not capable to do full SSL-Encryption of the connection.</b><br>
         For further details, see the API-documentation.
