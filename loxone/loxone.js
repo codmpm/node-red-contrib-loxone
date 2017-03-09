@@ -15,7 +15,7 @@ module.exports = function (RED) {
             structure: {}
         };
 
-        if (configNode.connected) {
+        if (configNode && configNode.connected) {
 
             /*
              console.log('connected, show debug');
@@ -177,7 +177,9 @@ module.exports = function (RED) {
                 client.once('close', function () {
                     done();
                 });
-                client.close();
+                client.abort();
+            }else {
+                done();
             }
         });
 
