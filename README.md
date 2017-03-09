@@ -1,5 +1,5 @@
-node-red-contrib-loxone
-=
+# node-red-contrib-loxone
+
 This is a work-in-progress node to connect the Loxone Miniserver to
 node-red. It uses [node-lox-ws-api](https://github.com/alladdin/node-lox-ws-api) 
 by Ladislav Dokulil based on Loxone's documenation for the [Websocket API](https://www.loxone.com/dede/wp-content/uploads/sites/2/2016/08/loxone-communicating-with-the-miniserver.pdf).
@@ -29,8 +29,7 @@ Here is another example of reading the current used bandwith of a FritzBox-Route
   
 ![image of node-red flow for fritzbox](node-red-contrib-loxone-demo-fritz.png)  
 
-Currently working parts
--
+### Currently working parts
 * Configure a miniserver connection 
 * Loxone-In node ~~(no subcontrols)~~
 * Loxone-Out node ~~(no subcontrols)~~
@@ -67,8 +66,8 @@ Also keep in mind, that this element sends `1/0` but expects to be fed with `On/
 
 Maybe you can point me out, how to get `I1-I8` directly via the WS-API.
 
-Currently partially working, caveats
--
+### Currently partially working, caveats
+
 * ~~The "connected" info under the node in the editor is buggy atm~~
 * Connection handling is quirky. Maybe you have to deploy two times after a change
 * Only `controls` are parsed, no `mediaServer`, `weatherServer`, etc. 
@@ -77,8 +76,7 @@ Currently partially working, caveats
 * There's only marginal error handling for the editor
 
 
-ToDo
--
+### ToDo
 * Convenience / Testing!
 * ~~More info in `msg`-object based on structure file~~
 * ~~Configuration of the encryption method - currently only "Hash"~~
@@ -88,8 +86,7 @@ ToDo
 * See `TODO` comments in the code
 * ...
 
-Installation
--
+### Installation
 Install the usual way. Either
 
     cd ~/.node-red/
@@ -97,8 +94,7 @@ Install the usual way. Either
     
 or via node-red's `Manage palette`.
 
-Contributing
--
+### Contributing
 
 1. Fork it!
 2. Create your feature branch: `git checkout -b my-new-feature`
@@ -106,8 +102,7 @@ Contributing
 4. Push to the branch: `git push origin my-new-feature`
 5. Submit a pull request :D
 
-Credits
--
+### Credits
 Patrik Mayer with great help from [Ladislav Dokulil](https://github.com/alladdin), 2017 
 
 I'm not affiliated with [Loxone](https://www.loxone.com/) in any way.
@@ -115,7 +110,6 @@ I'm not affiliated with [Loxone](https://www.loxone.com/) in any way.
 Many thanks to [Nick O'Leary](https://github.com/knolleary), [Dave Conway-Jones](https://github.com/dceejay/)
  and everyone else from the node-red Slack-Channel. 
 
-License
--
+### License
 MIT
 
