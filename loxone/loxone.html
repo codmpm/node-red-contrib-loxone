@@ -7,11 +7,28 @@
         //TODO: check if miniserver is connected/available
         //TODO: add spinner while loading miniserver structure
         var configNodeId = $('#node-input-miniserver').val();
-        var url = './struct?id=' + configNodeId;
+        var node = RED.nodes.node(configNodeId);
 
         $('#return-msg').text('');
 
-        if (configNodeId) {
+        if (node) {
+            var url = './loxone-miniserver/struct?id=' + node.id;
+
+            if (node.credentials || node.changed){
+                url = './loxone-miniserver/struct-changed' +
+                    '?id=' + node.id +
+                    '&host=' + encodeURIComponent(node.host) +
+                    '&port=' + encodeURIComponent(node.port);
+
+                if (node.credentials){
+                    if (node.credentials.username){
+                        url += '&username=' + encodeURIComponent(node.credentials.username);
+                    }
+                    if (node.credentials.password){
+                        url += '&password=' + encodeURIComponent(node.credentials.password);
+                    }
+                }
+            }
 
             $.getJSON(url)
                 .done(function (data) {
@@ -475,7 +492,7 @@
             password: {type: "password", required: true}
         },
         label: function () {
-            return this.host;
+            return this.host + ':' + this.port;
         },
         oneditsave: function () {
             this.encrypted = $('#node-config-input-encrypted').prop('checked');

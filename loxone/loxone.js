@@ -2,8 +2,9 @@ module.exports = function (RED) {
 
     "use strict";
     const node_lox_ws_api = require("node-lox-ws-api");
+    const http = require('http');
 
-    RED.httpAdmin.get('/struct', function (req, res) {
+    RED.httpAdmin.get('/loxone-miniserver/struct', function (req, res) {
         if (!req.query.id) {
             return res.json("");
         }
@@ -17,34 +18,62 @@ module.exports = function (RED) {
 
         if (configNode && configNode.connected) {
 
-            /*
-             console.log('connected, show debug');
-
-             console.log('---------------------------');
-             console.log(configNode.rooms);
-             console.log(configNode.categories);
-
-             console.log('---------------------------');
-             //console.log(node.structureData.controls);
-             console.log(configNode.controls);
-             */
-
             result = {
                 state: 'ok',
                 msg: 'got miniserver structure',
-                /*
-                 structure: {
-                 rooms: configNode.rooms,
-                 categories: configNode.categories,
-                 controls: configNode.controls
-                 }*/
                 structure: configNode.structureData
             };
 
         }
 
         res.json(result)
+    });
 
+    RED.httpAdmin.get('/loxone-miniserver/struct-changed', function (req, res) {
+
+        var result = {
+            state: 'error',
+            msg: 'miniserver not connected',
+            structure: {}
+        };
+
+        var username = req.query.username;
+        var password = req.query.password;
+
+        var configNode = RED.nodes.getNode(req.query.id);
+        if (configNode){
+            if (!username){ username = configNode.credentials.username; }
+            if (!password){ password = configNode.credentials.password; }
+        }
+
+        http.get({
+                host: req.query.host,
+                port: req.query.port,
+                path: '/data/LoxAPP3.json',
+                auth: username + ':' + password,
+            }, function (http_res){
+                if (http_res.statusCode !== 200) {
+                    http_res.resume();
+                    res.json(result);
+                    return;
+                }
+
+                var data = '';
+                http_res.on('data', function(chunk) {
+                    data += chunk;
+                });
+                http_res.on('end', function() {
+                    result = {
+                        state: 'ok',
+                        msg: 'got miniserver structure',
+                        structure: prepareStructure(JSON.parse(data)),
+                    };
+                    res.json(result);
+                });
+            }
+        ).on('error', function(e) {
+            res.json(result);
+        });
     });
 
     function LoxoneMiniserver(config) {
@@ -164,7 +193,7 @@ module.exports = function (RED) {
 
         client.on('get_structure_file', function (data) {
             node.log("got structure file " + data.lastModified);
-            node.structureData = node.prepareStructure(data);
+            node.structureData = prepareStructure(data);
         });
 
         client.on('update_event_value', _updateEvent);
@@ -289,7 +318,7 @@ module.exports = function (RED) {
 
     };
 
-    LoxoneMiniserver.prototype.prepareStructure = function (data) {
+    function prepareStructure(data) {
         var structure = {
             rooms: data.rooms,
             cats: data.cats,
