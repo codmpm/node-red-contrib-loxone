@@ -5,18 +5,22 @@ node-red. It uses [node-lox-ws-api](https://github.com/alladdin/node-lox-ws-api)
 by Ladislav Dokulil based on Loxone's documenation for the [Websocket API](https://www.loxone.com/dede/wp-content/uploads/sites/2/2016/08/loxone-communicating-with-the-miniserver.pdf).
 
 It enables you to connect the Loxone Miniserver directly to node-red and work with the data
-on occuring events. For example you could hook-up an mqtt-node to push Loxone's data to an mqtt-broker.
-Also you could, for example, switch something in the miniserver cause somebody tweeted...
+on occuring events. As this uses the official Websocket, you will only see controls that are 
+visualized in Loxone-Config. 
 
 The connection to the miniserver is encrypted (hashed) via node-lox-ws-api, AES-256-CBC for command encryption 
 is possible. It is kept alive via `node-lox-ws-api`.
 
-**This is the first release to npm. Consider it as a testing/beta release!**
+**This is an early release, consider it as a testing/beta!**
 
 > Help, pull requests and feedback in general are very welcome!
 
-I've only tested it with a Temperature Sensor and a switch module so far as I don't 
-have an own Loxone installation. Gladly a friend of mine lent me his spare miniserver.
+As I don't have an own Loxone installation, I can't do a "real world" test. 
+Gladly a friend of mine lent me his spare miniserver for initial testing.
+
+Tested with loxone-config V8.1.11.11, node-red 0.16.2, nodeJS 6.10.0 LTS
+
+### Examples
 
 ![image of node-red editor](node-red-contrib-loxone-editor.png)
 ![image node-red dashboard](node-red-contrib-loxone-dashboard.png)
@@ -29,14 +33,12 @@ Here is another example of reading the current used bandwith of a FritzBox-Route
   
 ![image of node-red flow for fritzbox](node-red-contrib-loxone-demo-fritz.png)  
 
-### Currently working parts
+### Working parts so far
 * Configure a miniserver connection 
 * Loxone-In node ~~(no subcontrols)~~
 * Loxone-Out node ~~(no subcontrols)~~
 * Loxone-In: Select a control and a state to "listen to" which then gets passed to node-red
 * Loxone-Out: Select a control and feed it commands according to the [structure file](https://www.loxone.com/dede/wp-content/uploads/sites/2/2016/08/loxone-structure-file.pdf?x48792)
-
-Tested with loxone-config V8.1.11.11
 
 The structure file can also be retrieved via `http://<miniserver>/data/LoxAPP3.json`.
 An explanation of the file can be found [here](https://www.loxone.com/dede/wp-content/uploads/sites/2/2016/08/loxone-structure-file.pdf)
@@ -61,15 +63,17 @@ the selected control. For example:
     
 I've discovered that a switch element emits its current state (`active`) two times with the same value.
 The first one when the trigger-button is pressed and second one when the button is released - so 
-watch out for race conditions in your flow.
+take care of this as it might give you unexpected results.
 Also keep in mind, that this element sends `1/0` but expects to be fed with `On/Off/Pulse`.
 
-Maybe you can point me out, how to get `I1-I8` directly via the WS-API.
+~~Maybe you can point me out, how to get `I1-I8` directly via the WS-API.~~ As only visualized controls are
+shown in the structure file, this won't work.
 
 ### Currently partially working, caveats
 
 * ~~The "connected" info under the node in the editor is buggy atm~~
-* Connection handling is quirky. Maybe you have to deploy two times after a change
+* On first configuration you have to deploy first, so that the runtime can connect to the MS, in order 
+to load the structure file so you can select controls
 * Only `controls` are parsed, no `mediaServer`, `weatherServer`, etc. 
   Is this enough? 
 * ~~No `subcontrols`, yet~~
@@ -78,6 +82,7 @@ Maybe you can point me out, how to get `I1-I8` directly via the WS-API.
 
 ### ToDo
 * Convenience / Testing!
+* Connection handling on first configuration
 * ~~More info in `msg`-object based on structure file~~
 * ~~Configuration of the encryption method - currently only "Hash"~~
 * ~~Loxone-Out~~ needs testing
