@@ -72,7 +72,7 @@ shown in the structure file, this won't work.
 ### Currently partially working, caveats
 
 * ~~The "connected" info under the node in the editor is buggy atm~~
-* On first configuration you have to deploy first, so that the runtime can connect to the MS, in order 
+* On initial configuration you have to deploy first, so that the runtime can connect to the MS, in order 
 to load the structure file so you can select controls
 * Only `controls` are parsed, no `mediaServer`, `weatherServer`, etc. 
   Is this enough? 
