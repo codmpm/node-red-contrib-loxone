@@ -8,10 +8,12 @@ It enables you to connect the Loxone Miniserver directly to node-red and work wi
 on occuring events. As this uses the official Websocket, you will only see controls that are 
 visualized in Loxone-Config. 
 
+**You will get the data from Loxone's websocket _as is_. There is and will be no abstraction layer!**
+So please know how to handle the data according to the [structure file](https://www.loxone.com/dede/wp-content/uploads/sites/2/2016/08/loxone-structure-file.pdf?x48792).
+
+
 The connection to the miniserver is encrypted (hashed) via node-lox-ws-api, AES-256-CBC for command encryption 
 is possible. It is kept alive via `node-lox-ws-api`.
-
-**This is an early release, consider it as a testing/beta!**
 
 > Help, pull requests and feedback in general are very welcome!
 
@@ -25,13 +27,16 @@ Tested with loxone-config V8.1.11.11, node-red 0.16.2, nodeJS 6.10.0 LTS
 ![image of node-red editor](node-red-contrib-loxone-editor.png)
 ![image node-red dashboard](node-red-contrib-loxone-dashboard.png)
 
-Here's a small video with the Loxone Webinterface on the left, Loxone-Config with LiveView enabled in the 
+Here's a small video of the controls above with the Loxone Webinterface on the left, Loxone-Config with LiveView enabled in the 
 middle and node-red with node-red-dashboard on the right: https://cloud.codm.de/nextcloud/index.php/s/hNO2hIgnGIDWGqM
 
-Here is another example of reading the current used bandwith of a FritzBox-Router and display 
- this data in the visualisation of the Miniserver:  https://cloud.codm.de/nextcloud/index.php/s/5XoNoMLilinpU4v
+--- 
+
+![image of node-red flow for fritzbox](node-red-contrib-loxone-demo-fritz.png)
   
-![image of node-red flow for fritzbox](node-red-contrib-loxone-demo-fritz.png)  
+Another example: Reading the current used bandwith of a FritzBox-Router and display 
+this data in the visualisation of the Miniserver:  https://cloud.codm.de/nextcloud/index.php/s/5XoNoMLilinpU4v
+    
 
 ### Working parts so far
 * Configure a miniserver connection 
@@ -41,12 +46,8 @@ Here is another example of reading the current used bandwith of a FritzBox-Route
 * Loxone-Out: Select a control and feed it commands according to the [structure file](https://www.loxone.com/dede/wp-content/uploads/sites/2/2016/08/loxone-structure-file.pdf?x48792)
 
 The structure file can also be retrieved via `http://<miniserver>/data/LoxAPP3.json`.
-An explanation of the file can be found [here](https://www.loxone.com/dede/wp-content/uploads/sites/2/2016/08/loxone-structure-file.pdf)
 
-**You will get the data from Loxone's websocket _as is_. There is and will be no abstraction layer!**
-So please know how to handle the data according to the documentation.
-
-The `msg.payload` holds the value retrieved from the miniserver. The `msg`-object itself holds more information of
+The `msg.payload` holds the value retrieved from the control's state. The `msg`-object also has some more information of
 the selected control. For example:
 
     {
@@ -72,17 +73,16 @@ shown in the structure file, this won't work.
 ### Currently partially working, caveats
 
 * ~~The "connected" info under the node in the editor is buggy atm~~
-* On initial configuration you have to deploy first, so that the runtime can connect to the MS, in order 
-to load the structure file so you can select controls
+* ~~On initial configuration you have to deploy first, so that the runtime can connect to the MS, in order 
+to load the structure file so you can select controls~~
 * Only `controls` are parsed, no `mediaServer`, `weatherServer`, etc. 
   Is this enough? 
 * ~~No `subcontrols`, yet~~
-* There's only marginal error handling for the editor
 
 
-### ToDo
+### ToDo 
 * Convenience / Testing!
-* Connection handling on first configuration
+* ~~Connection handling on first configuration~~
 * ~~More info in `msg`-object based on structure file~~
 * ~~Configuration of the encryption method - currently only "Hash"~~
 * ~~Loxone-Out~~ needs testing

@@ -104,7 +104,7 @@ module.exports = function (RED) {
         var text_logger_limit = 100;
         var ws_auth = config.encrypted ? 'AES-256-CBC' : 'Hash';
 
-        node.log('connecting miniserver at ' + config.host + ':' + config.port);
+        //node.log('connecting miniserver at ' + config.host + ':' + config.port);
 
         var client = new node_lox_ws_api(
             config.host + ':' + config.port,
@@ -117,12 +117,12 @@ module.exports = function (RED) {
         client.connect();
 
         client.on('connect', function () {
-            node.log('connected to ' + config.host + ':' + config.port);
+            node.log('Miniserver connected (' + config.host + ':' + config.port);
             node.connected = true;
         });
 
         client.on('authorized', function () {
-            node.log('authorized');
+            //node.log('authorized');
             node.authenticated = true;
             node.connection = client;
 
@@ -130,12 +130,12 @@ module.exports = function (RED) {
         });
 
         client.on('connect_failed', function () {
-            node.error('connect failed');
+            node.error('Miniserver connect failed');
             node.setConnectionState("red", "connection failed", "ring");
         });
 
         client.on('connection_error', function (error) {
-            node.error('connection error: ' + error);
+            node.error('Miniserver connection error: ' + error);
         });
 
         client.on('close', function () {
@@ -148,7 +148,7 @@ module.exports = function (RED) {
         });
 
         client.on('send', function (message) {
-            node.log("sent message: " + message);
+            //node.log("sent message: " + message);
         });
 
         client.on('message_text', function (message) {
@@ -286,10 +286,10 @@ module.exports = function (RED) {
                         }
                     }
 
-                    this.log('got "' + stateName + '" for "' + controlName + '"');
+                    //this.log('got "' + stateName + '" for "' + controlName + '"');
 
                 } else {
-                    this.log('got message for ' + this._inputNodes[i].state);
+                    //this.log('got message for ' + this._inputNodes[i].state);
                 }
 
 
@@ -322,7 +322,7 @@ module.exports = function (RED) {
         var structure = {
             rooms: data.rooms,
             cats: data.cats,
-            controls: {},
+            controls: {}
         };
 
         for (var uuid in data.controls) {

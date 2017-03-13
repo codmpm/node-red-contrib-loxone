@@ -4,12 +4,16 @@
 
     function getStructureFile(callback) {
 
-        //TODO: check if miniserver is connected/available
-        //TODO: add spinner while loading miniserver structure
         var configNodeId = $('#node-input-miniserver').val();
         var node = RED.nodes.node(configNodeId);
 
-        $('#return-msg').text('');
+        $('#return-msg').html('').css({});
+
+        var userMsg = 'No miniserver selected or connected!';
+        var userMsgCss = {
+            'color': '#ad1625',
+            'font-weight': 'bold'
+        };
 
         if (node) {
             var url = './loxone-miniserver/struct?id=' + node.id;
@@ -33,9 +37,11 @@
             $.getJSON(url)
                 .done(function (data) {
 
-                    //console.log(data);
-
                     if (data.state == 'ok') {
+
+                        var userMsgCss = {
+                            'color': '#49db3c'
+                        };
 
                         var uuid;
                         var $roomSelect = $('#node-input-room');
@@ -71,15 +77,17 @@
                             }
                         }
 
-                    } else {
-                        $('#return-msg').text(data.msg);
                     }
 
+                    $('#return-msg').html(data.msg).css(userMsgCss);
                     callback(data);
 
                 });
         } else {
-            $('#return-msg').text('No miniserver selected or connected!');
+            $('#return-msg').html(userMsg).css(userMsgCss);
+
+            //empty miniserver information as we don't have a validc connection
+            $('#node-input-room, #node-input-category, #node-input-control, #node-input-state').empty();
         }
 
     }
@@ -297,7 +305,6 @@
                         }
                     }
 
-
                 });
             };
 
@@ -438,7 +445,7 @@
         The structure of your Miniserver will be loaded on connecting an is selectable on adding an in- or out-node.
         <br>
         <br>
-        If you want, enable AES-256-CBC encryption and the commands/values get encrypted. Otherwise only hashing of the commands is done.<br>
+        If you want, enable AES-256-CBC encryption and the commands get encrypted. Otherwise only hashing of the commands is done.<br>
         <br>
         <b>The miniserver is not capable to do full SSL-Encryption of the connection.</b><br>
         For further details, see the API-documentation.
