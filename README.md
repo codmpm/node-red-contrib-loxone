@@ -37,6 +37,7 @@ middle and node-red with node-red-dashboard on the right: https://cloud.codm.de/
 Another example: Reading the current used bandwith of a FritzBox-Router and display 
 this data in the visualisation of the Miniserver:  https://cloud.codm.de/nextcloud/index.php/s/5XoNoMLilinpU4v
     
+The flow itself could be found here: http://flows.nodered.org/flow/0b3c81b3361027ce4064d4e934f23685    
 
 ### Working parts so far
 * Configure a miniserver connection 
