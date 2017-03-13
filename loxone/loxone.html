@@ -143,7 +143,7 @@
 
 
     function disableChangeEvents() {
-        $('#node-input-room, #node-input-category, #node-input-control').off('change');
+        $('#node-input-miniserver, #node-input-room, #node-input-category, #node-input-control').off('change');
     }
 </script>
 
@@ -252,33 +252,39 @@
             return this.name || "loxone";
         },
         oneditprepare: function () {
-
             var node = this;
 
-            getStructureFile(function (data) {
+            function prepareInput() {
+                disableChangeEvents();
+                $('#node-input-miniserver').on('change', prepareInput);
 
-                msStructure = data.structure;
+                getStructureFile(function (data) {
 
-                var $controlSelect = $('#node-input-control');
-                $controlSelect.on('change', fillState);
-                $('#node-input-room, #node-input-category').on('change', fillControl);
+                    msStructure = data.structure;
 
-                if (node.control) {
-                    $controlSelect.val(node.control);
-                    $controlSelect.trigger('change');
+                    var $controlSelect = $('#node-input-control');
+                    $controlSelect.on('change', fillState);
+                    $('#node-input-room, #node-input-category').on('change', fillControl);
 
-                    //select proper room and categoriy for selected control
-                    var controlFromStructure = data.structure.controls[node.control];
-                    $('#node-input-room').val(controlFromStructure.room);
-                    $('#node-input-category').val(controlFromStructure.cat);
+                    if (node.control) {
+                        $controlSelect.val(node.control);
+                        $controlSelect.trigger('change');
 
-                    if (node.state) {
-                        $('#node-input-state').val(node.state);
+                        //select proper room and categoriy for selected control
+                        var controlFromStructure = data.structure.controls[node.control];
+                        $('#node-input-room').val(controlFromStructure.room);
+                        $('#node-input-category').val(controlFromStructure.cat);
+
+                        if (node.state) {
+                            $('#node-input-state').val(node.state);
+                        }
                     }
-                }
 
 
-            });
+                });
+            };
+
+            prepareInput();
         },
         oneditsave: function () {
             disableChangeEvents();
@@ -366,28 +372,33 @@
             return this.name || "loxone";
         },
         oneditprepare: function () {
-
             var node = this;
 
-            getStructureFile(function (data) {
-                msStructure = data.structure;
+            function prepareInput() {
+                disableChangeEvents();
+                $('#node-input-miniserver').on('change', prepareInput);
 
-                $('#node-input-room, #node-input-category').on('change', fillControl);
+                getStructureFile(function (data) {
+                    msStructure = data.structure;
 
-                var $controlSelect = $('#node-input-control');
+                    $('#node-input-room, #node-input-category').on('change', fillControl);
 
-                if (node.control) {
-                    $controlSelect.val(node.control);
+                    var $controlSelect = $('#node-input-control');
 
-                    //select proper room and category for selected control
-                    var controlFromStructure = data.structure.controls[node.control];
-                    $('#node-input-room').val(controlFromStructure.room);
-                    $('#node-input-category').val(controlFromStructure.cat);
-                }
+                    if (node.control) {
+                        $controlSelect.val(node.control);
+
+                        //select proper room and category for selected control
+                        var controlFromStructure = data.structure.controls[node.control];
+                        $('#node-input-room').val(controlFromStructure.room);
+                        $('#node-input-category').val(controlFromStructure.cat);
+                    }
 
 
-            });
+                });
+            };
 
+            prepareInput();
         },
         oneditsave: function () {
             disableChangeEvents();
