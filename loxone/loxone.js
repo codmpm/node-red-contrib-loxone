@@ -117,7 +117,7 @@ module.exports = function (RED) {
         client.connect();
 
         client.on('connect', function () {
-            node.log('Miniserver connected (' + config.host + ':' + config.port);
+            node.log('Miniserver connected (' + config.host + ':' + config.port) + ')';
             node.connected = true;
         });
 
