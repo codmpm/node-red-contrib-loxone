@@ -79,6 +79,7 @@ to load the structure file so you can select controls~~
 * Only `controls` are parsed, no `mediaServer`, `weatherServer`, etc. 
   Is this enough? 
 * ~~No `subcontrols`, yet~~
+* UpDownLeftRight digital/analog are not working at the moment
 
 
 ### ToDo 
