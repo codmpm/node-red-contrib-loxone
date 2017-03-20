@@ -172,7 +172,7 @@
     }
 </script>
 
-<script type="text/x-red" data-help-name="loxone-in">
+<script type="text/x-red" data-help-name="loxone-control-in">
     <p>
         This node attaches to a control on the selected Miniserver and will receive every event
         when it occurs and on connecting.<br>
@@ -202,7 +202,7 @@
 
 </script>
 
-<script type="text/x-red" data-template-name="loxone-in">
+<script type="text/x-red" data-template-name="loxone-control-in">
 
     <div class="form-row">
         <label for="node-input-miniserver">
@@ -261,8 +261,9 @@
 </script>
 
 <script type="text/javascript">
-    RED.nodes.registerType('loxone-in', {
-        category: 'input',
+    RED.nodes.registerType('loxone-control-in', {
+        category: 'loxone',
+        paletteLabel: 'control in',
         color: '#83B817',
         defaults: {
             name: {value: ''},
@@ -274,7 +275,7 @@
         outputs: 1,
         icon: "loxone.png",
         label: function () {
-            return this.name || "loxone";
+            return this.name || "control in";
         },
         oneditprepare: function () {
             var node = this;
@@ -320,7 +321,7 @@
 </script>
 
 
-<script type="text/x-red" data-help-name="loxone-out">
+<script type="text/x-red" data-help-name="loxone-control-out">
     <p>
         Select the control where <code>msg.payload</code> will be send to.<br>
         <br>
@@ -331,7 +332,7 @@
 </script>
 
 
-<script type="text/x-red" data-template-name="loxone-out">
+<script type="text/x-red" data-template-name="loxone-control-out">
 
     <div class="form-row">
         <label for="node-input-miniserver">
@@ -380,8 +381,9 @@
 </script>
 
 <script type="text/javascript">
-    RED.nodes.registerType('loxone-out', {
-        category: 'output',
+    RED.nodes.registerType('loxone-control-out', {
+        category: 'loxone',
+        paletteLabel: 'control out',
         color: '#83B817',
         defaults: {
             name: {value: ''},
@@ -393,7 +395,7 @@
         icon: "loxone.png",
         align: "right",
         label: function () {
-            return this.name || "loxone";
+            return this.name || "control out";
         },
         oneditprepare: function () {
             var node = this;
@@ -507,4 +509,65 @@
     });
 </script>
 
+
+
+<script type="text/x-red" data-help-name="loxone-webservice">
+    <p>
+        See https://www.loxone.com/enen/kb/web-services/<br>
+        The configured Websocket-Connection is used for communication.<br>
+        <br>
+        <code>msg.uri</code> from the incomfing message object overwrites the set uri.
+    </p>
+
+</script>
+
+
+<script type="text/x-red" data-template-name="loxone-webservice">
+
+    <div class="form-row">
+        <label for="node-input-miniserver">
+            <i class="fa fa-globe"></i>
+            Miniserver
+        </label>
+        <input type="text" id="node-input-miniserver">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-uri">
+            <i class="icon-bookmark"></i>
+            URI
+        </label>
+        <input type="text" id="node-input-uri" placeholder="/command/control/value">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+
+    <div class="form-row">
+        <span id="return-msg"></span>
+    </div>
+
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('loxone-webservice', {
+        category: 'loxone',
+        paletteLabel: 'webservice',
+        color: '#83B817',
+        defaults: {
+            name: {value: ''},
+            miniserver: {type: 'loxone-miniserver', required: true},
+            uri: {value: '', required: true}
+        },
+        inputs: 1,
+        outputs: 1,
+        icon: "loxone.png",
+        align: "left",
+        label: function () {
+            return this.name || "api call";
+        }
+    });
+</script>
 

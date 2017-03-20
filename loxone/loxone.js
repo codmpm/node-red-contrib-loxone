@@ -80,7 +80,7 @@ module.exports = function (RED) {
 
 
         function _updateEvent(uuid, evt) {
-            //node.log("received update event: " + JSON.stringify(evt) + ':' + uid);
+            node.log("received update event: " + JSON.stringify(evt) + ':' + uuid);
             node.handleEvent(uuid, evt);
         }
 
@@ -148,7 +148,7 @@ module.exports = function (RED) {
         });
 
         client.on('send', function (message) {
-            //node.log("sent message: " + message);
+            node.log("sent message: " + message);
         });
 
         client.on('message_text', function (message) {
@@ -349,7 +349,7 @@ module.exports = function (RED) {
         return structure;
     };
 
-    function LoxoneInNode(config) {
+    function LoxoneControlInNode(config) {
 
         RED.nodes.createNode(this, config);
         var node = this;
@@ -373,9 +373,9 @@ module.exports = function (RED) {
 
     }
 
-    RED.nodes.registerType("loxone-in", LoxoneInNode);
+    RED.nodes.registerType("loxone-control-in", LoxoneControlInNode);
 
-    function LoxoneOutNode(config) {
+    function LoxoneControlOutNode(config) {
 
         RED.nodes.createNode(this, config);
         var node = this;
@@ -403,5 +403,45 @@ module.exports = function (RED) {
 
     }
 
-    RED.nodes.registerType("loxone-out", LoxoneOutNode);
+    RED.nodes.registerType("loxone-control-out", LoxoneControlOutNode);
+
+
+
+
+
+
+    function LoxoneWebServiceNode(config){
+        RED.nodes.createNode(this, config);
+        var node = this;
+
+        node.miniserver = RED.nodes.getNode(config.miniserver);
+
+        this.on('input', function (msg) {
+
+            var wantedURI = msg.uri || config.uri;
+
+            //TODO: check for valid uris
+            if (!wantedURI.length) {
+                node.warn('empty uri');
+                return null;
+            }
+
+            node.log('sending ' + wantedURI);
+            var result = node.miniserver.connection.connection.send(wantedURI);
+
+            console.log(result);
+
+            //node.send(msg);
+
+        });
+
+
+
+    }
+
+    RED.nodes.registerType('loxone-webservice', LoxoneWebServiceNode);
+
+
+
+
 };
