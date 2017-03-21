@@ -4,6 +4,7 @@ module.exports = function (RED) {
     const node_lox_ws_api = require("node-lox-ws-api");
     const http = require('http');
 
+
     RED.httpAdmin.get('/loxone-miniserver/struct', function (req, res) {
         if (!req.query.id) {
             return res.json("");
@@ -41,9 +42,13 @@ module.exports = function (RED) {
         var password = req.query.password;
 
         var configNode = RED.nodes.getNode(req.query.id);
-        if (configNode){
-            if (!username){ username = configNode.credentials.username; }
-            if (!password){ password = configNode.credentials.password; }
+        if (configNode) {
+            if (!username) {
+                username = configNode.credentials.username;
+            }
+            if (!password) {
+                password = configNode.credentials.password;
+            }
         }
 
         http.get({
@@ -51,7 +56,7 @@ module.exports = function (RED) {
                 port: req.query.port,
                 path: '/data/LoxAPP3.json',
                 auth: username + ':' + password,
-            }, function (http_res){
+            }, function (http_res) {
                 if (http_res.statusCode !== 200) {
                     http_res.resume();
                     res.json(result);
@@ -59,10 +64,10 @@ module.exports = function (RED) {
                 }
 
                 var data = '';
-                http_res.on('data', function(chunk) {
+                http_res.on('data', function (chunk) {
                     data += chunk;
                 });
-                http_res.on('end', function() {
+                http_res.on('end', function () {
                     result = {
                         state: 'ok',
                         msg: 'got miniserver structure',
@@ -71,7 +76,7 @@ module.exports = function (RED) {
                     res.json(result);
                 });
             }
-        ).on('error', function(e) {
+        ).on('error', function (e) {
             res.json(result);
         });
     });
@@ -80,7 +85,7 @@ module.exports = function (RED) {
 
 
         function _updateEvent(uuid, evt) {
-            node.log("received update event: " + JSON.stringify(evt) + ':' + uuid);
+            //node.log("received update event: " + JSON.stringify(evt) + ':' + uuid);
             node.handleEvent(uuid, evt);
         }
 
@@ -100,6 +105,7 @@ module.exports = function (RED) {
         node.structureData = null;
         node._inputNodes = [];
         node._outputNodes = [];
+        node._webserviceNodes = []; //only webservice nodes which have a message sent will be here
 
         var text_logger_limit = 100;
         var ws_auth = config.encrypted ? 'AES-256-CBC' : 'Hash';
@@ -148,13 +154,15 @@ module.exports = function (RED) {
         });
 
         client.on('send', function (message) {
-            node.log("sent message: " + message);
+            //node.log("sent message: " + message);
         });
 
         client.on('message_text', function (message) {
+
             var data = {
                 type: message.type
             };
+
             switch (message.type) {
                 case 'json':
                     data.json = _limitString(JSON.stringify(message.json), text_logger_limit);
@@ -162,9 +170,28 @@ module.exports = function (RED) {
 
                     break;
                 case 'control':
-                    data.control = message.control;
-                    data.value = message.value;
-                    data.code = message.code;
+
+                    for (var i in node._webserviceNodes) {
+
+                        var wsNode = node._webserviceNodes[i];
+
+                        if (wsNode.uri == 'j' + message.control) {
+
+                            var msg = {
+                                'payload': message.value,
+                                'topic': message.control,
+                                'code': parseInt(message.code)
+                            };
+
+                            //send the data out of the requesting node
+                            wsNode.send(msg);
+
+                            //unregister node from queue
+                            node.deregisterWebserviceNode(wsNode);
+                            break;
+                        }
+                    }
+
                     break;
                 default:
                     data.text = _limitString(message.data, text_logger_limit);
@@ -207,7 +234,7 @@ module.exports = function (RED) {
                     done();
                 });
                 client.abort();
-            }else {
+            } else {
                 done();
             }
         });
@@ -230,6 +257,10 @@ module.exports = function (RED) {
         this._outputNodes.push(handler);
     };
 
+    LoxoneMiniserver.prototype.registerWebserviceNode = function (handler) {
+        this._webserviceNodes.push(handler);
+    };
+
 
     LoxoneMiniserver.prototype.deregisterInputNode = function (handler) {
         this._inputNodes.forEach(function (node, i, inputNodes) {
@@ -241,6 +272,14 @@ module.exports = function (RED) {
 
     LoxoneMiniserver.prototype.deregisterOutputNode = function (handler) {
         this._outputNodes.forEach(function (node, i, outputNodes) {
+            if (node === handler) {
+                outputNodes.splice(i, 1);
+            }
+        });
+    };
+
+    LoxoneMiniserver.prototype.deregisterWebserviceNode = function (handler) {
+        this._webserviceNodes.forEach(function (node, i, outputNodes) {
             if (node === handler) {
                 outputNodes.splice(i, 1);
             }
@@ -354,7 +393,6 @@ module.exports = function (RED) {
         RED.nodes.createNode(this, config);
         var node = this;
 
-        node.status({});
         node.state = config.state;
         node.control = config.control;
 
@@ -380,9 +418,7 @@ module.exports = function (RED) {
         RED.nodes.createNode(this, config);
         var node = this;
 
-        node.status({});
         node.control = config.control;
-
         node.miniserver = RED.nodes.getNode(config.miniserver);
 
         if (node.miniserver) {
@@ -406,42 +442,46 @@ module.exports = function (RED) {
     RED.nodes.registerType("loxone-control-out", LoxoneControlOutNode);
 
 
-
-
-
-
-    function LoxoneWebServiceNode(config){
+    function LoxoneWebServiceNode(config) {
         RED.nodes.createNode(this, config);
         var node = this;
-
         node.miniserver = RED.nodes.getNode(config.miniserver);
 
         this.on('input', function (msg) {
 
+            node.status({});
             var wantedURI = msg.uri || config.uri;
 
-            //TODO: check for valid uris
             if (!wantedURI.length) {
-                node.warn('empty uri');
+                node.status({
+                    fill: 'yellow',
+                    shape: 'ring',
+                    text: 'empty uri'
+                });
                 return null;
             }
 
-            node.log('sending ' + wantedURI);
-            var result = node.miniserver.connection.connection.send(wantedURI);
+            if (!wantedURI.match(/^jdev/)) {
+                node.status({
+                    fill: 'yellow',
+                    shape: 'ring',
+                    text: 'invalid uri'
+                });
+                return null;
+            }
 
-            console.log(result);
+            node.uri = wantedURI;
+            //node.log('sending ' + wantedURI);
 
-            //node.send(msg);
+            //add node to the queue for waiting messages and send the URI
+            node.miniserver.registerWebserviceNode(node);
+            node.miniserver.connection.connection.send(wantedURI);
 
         });
-
 
 
     }
 
     RED.nodes.registerType('loxone-webservice', LoxoneWebServiceNode);
-
-
-
 
 };

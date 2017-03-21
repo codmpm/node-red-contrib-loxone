@@ -4,7 +4,7 @@
   "description": "Connecting the Loxone Miniserver to node-red via Websocket API",
   "license": "MIT",
   "keywords": [
-      "loxone"
+      "node-red", "loxone"
   ],
   "node-red": {
     "nodes": {

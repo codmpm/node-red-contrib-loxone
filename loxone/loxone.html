@@ -513,10 +513,21 @@
 
 <script type="text/x-red" data-help-name="loxone-webservice">
     <p>
-        See https://www.loxone.com/enen/kb/web-services/<br>
+        This is used to get a return from a webservice call through the existing
+        Websocket.
+        <br>
+        <br>
+        See the <a href="https://www.loxone.com/enen/kb/web-services/" target="_blank">Webservice documenation</a><br>
         The configured Websocket-Connection is used for communication.<br>
         <br>
-        <code>msg.uri</code> from the incomfing message object overwrites the set uri.
+        <code>msg.uri</code> from the incoming message object overwrites the set uri.
+        <br>
+        The return will hold the answer from the requested datapoint (URI):<br>
+        <pre>{
+    payload: "8.3.3.21",
+    topic: "dev/cfg/version",
+    code: 200
+}</pre>
     </p>
 
 </script>
@@ -537,12 +548,17 @@
             <i class="icon-bookmark"></i>
             URI
         </label>
-        <input type="text" id="node-input-uri" placeholder="/command/control/value">
+        <input type="text" id="node-input-uri" placeholder="jdev/cfg/version">
     </div>
 
     <div class="form-row">
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+
+    <div class="form-tips">
+        The URI has to start with <code>jdev/</code> as <code>dev/</code> is deprecated!<br>
+        Simply add use 'jdev' instead of 'dev' according to the documenation.
     </div>
 
     <div class="form-row">
@@ -559,14 +575,14 @@
         defaults: {
             name: {value: ''},
             miniserver: {type: 'loxone-miniserver', required: true},
-            uri: {value: '', required: true}
+            uri: {value: ''}
         },
         inputs: 1,
         outputs: 1,
         icon: "loxone.png",
         align: "left",
         label: function () {
-            return this.name || "api call";
+            return this.name || "webservice";
         }
     });
 </script>

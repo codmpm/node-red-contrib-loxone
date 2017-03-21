@@ -8,11 +8,14 @@ It enables you to connect the Loxone Miniserver directly to node-red and work wi
 on occuring events. As this uses the official Websocket, you will only see controls that are 
 visualized in Loxone-Config. 
 
+Version `0.1.0` breaks compatibility with `0.0.x`. The nodes now reside in their own group in the palette and have changed 
+names. Please readd your existing nodes accordingly.
+
 **You will get the data from Loxone's websocket _as is_. There is and will be no abstraction layer!**
-So please know how to handle the data according to the [structure file](https://www.loxone.com/dede/wp-content/uploads/sites/2/2016/08/loxone-structure-file.pdf?x48792).
+So please know how to handle the data according to the [structure file](https://www.loxone.com/dede/wp-content/uploads/sites/2/2016/08/loxone-structure-file.pdf?x48792) 
+or the [webservice documenation](https://www.loxone.com/enen/kb/web-services/).
 
-
-The connection to the miniserver is encrypted (hashed) via node-lox-ws-api, AES-256-CBC for command encryption 
+The connection to the miniserver is encrypted (hashed) via node-lox-ws-api (only for control-in and control-out), AES-256-CBC for command encryption 
 is possible. It is kept alive via `node-lox-ws-api`.
 
 > Help, pull requests and feedback in general are very welcome!
@@ -22,31 +25,14 @@ Gladly a friend of mine lent me his spare miniserver for initial testing.
 
 Tested with loxone-config V8.1.11.11, node-red 0.16.2, nodeJS 6.10.0 LTS
 
-### Examples
-
-![image of node-red editor](node-red-contrib-loxone-editor.png)
-![image node-red dashboard](node-red-contrib-loxone-dashboard.png)
-
-Here's a small video of the controls above with the Loxone Webinterface on the left, Loxone-Config with LiveView enabled in the 
-middle and node-red with node-red-dashboard on the right: https://cloud.codm.de/nextcloud/index.php/s/hNO2hIgnGIDWGqM
-
---- 
-
-![image of node-red flow for fritzbox](node-red-contrib-loxone-demo-fritz.png)
-  
-Another example: Reading the current used bandwith of a FritzBox-Router and display 
-this data in the visualisation of the Miniserver:  https://cloud.codm.de/nextcloud/index.php/s/5XoNoMLilinpU4v
-    
-The flow itself could be found here: http://flows.nodered.org/flow/0b3c81b3361027ce4064d4e934f23685    
-
 ### Working parts so far
 * Configure a miniserver connection 
-* Loxone-In node ~~(no subcontrols)~~
-* Loxone-Out node ~~(no subcontrols)~~
-* Loxone-In: Select a control and a state to "listen to" which then gets passed to node-red
-* Loxone-Out: Select a control and feed it commands according to the [structure file](https://www.loxone.com/dede/wp-content/uploads/sites/2/2016/08/loxone-structure-file.pdf?x48792)
+* Control-In: Select a control and a state to hook an event which then gets passed to node-red on occurence.
+* Control-Out: Select a control and feed it commands according to the [structure file](https://www.loxone.com/dede/wp-content/uploads/sites/2/2016/08/loxone-structure-file.pdf?x48792)
+* Webservice: Send direct webservice call through the existing websocket, see the [webservice documenation](https://www.loxone.com/enen/kb/web-services/). 
+Please use URI's inf form of `jdev/sps/io/foo` (no leading `/`), simply replace `dev/` from the documentation with `jdev/`.
 
-The structure file can also be retrieved via `http://<miniserver>/data/LoxAPP3.json`.
+The structure file can be retrieved via `http://<miniserver>/data/LoxAPP3.json`.
 
 The `msg.payload` holds the value retrieved from the control's state. The `msg`-object also has some more information of
 the selected control. For example:
@@ -69,7 +55,35 @@ take care of this as it might give you unexpected results.
 Also keep in mind, that this element sends `1/0` but expects to be fed with `On/Off/Pulse`.
 
 ~~Maybe you can point me out, how to get `I1-I8` directly via the WS-API.~~ As only visualized controls are
-shown in the structure file, this won't work.
+shown in the structure file, this won't work. Maybe this is now possible via the webservice node.
+
+
+### Examples
+
+![image of node-red editor](node-red-contrib-loxone-editor.png)
+![image node-red dashboard](node-red-contrib-loxone-dashboard.png)
+
+Here's a small video of the controls above with the Loxone Webinterface on the left, Loxone-Config with LiveView enabled in the 
+middle and node-red with node-red-dashboard on the right: https://cloud.codm.de/nextcloud/index.php/s/hNO2hIgnGIDWGqM
+
+--- 
+
+![image of node-red flow for fritzbox](node-red-contrib-loxone-demo-fritz.png)
+  
+Another example: Reading the current used bandwith of a FritzBox-Router and display 
+this data in the visualisation of the Miniserver:  https://cloud.codm.de/nextcloud/index.php/s/5XoNoMLilinpU4v
+    
+The flow itself could be found here: http://flows.nodered.org/flow/0b3c81b3361027ce4064d4e934f23685    
+
+---
+
+![image of node-red flow for webservice](node-red-contrib-loxone-webservice.png)
+The webservice node, added in version `0.1.0`, allows you to directly call webservice URI's through the already 
+established websocket connection.
+
+As the `UpDownDigital` (etc.) virtual input has no state where the control-in node can listen to, I've switched it as 
+an example via the webservice-node. See a short video here: https://cloud.codm.de/nextcloud/index.php/s/IttSURIGl8OkUBf
+
 
 ### Currently partially working, caveats
 
@@ -79,7 +93,7 @@ to load the structure file so you can select controls~~
 * Only `controls` are parsed, no `mediaServer`, `weatherServer`, etc. 
   Is this enough? 
 * ~~No `subcontrols`, yet~~
-* UpDownLeftRight digital/analog are not working at the moment
+* ~~UpDownLeftRight digital/analog are not working at the moment~~ - solved with the webservice node
 
 
 ### ToDo 
