@@ -30,7 +30,8 @@ Tested with loxone-config V8.1.11.11, node-red 0.16.2, nodeJS 6.10.0 LTS
 * Control-In: Select a control and a state to hook an event which then gets passed to node-red on occurence.
 * Control-Out: Select a control and feed it commands according to the [structure file](https://www.loxone.com/dede/wp-content/uploads/sites/2/2016/08/loxone-structure-file.pdf?x48792)
 * Webservice: Send direct webservice call through the existing websocket, see the [webservice documenation](https://www.loxone.com/enen/kb/web-services/). 
-Please use URI's inf form of `jdev/sps/io/foo` (no leading `/`), simply replace `dev/` from the documentation with `jdev/`.
+Please use URI's in form of `jdev/sps/io/foo` (no leading `/`), simply replace `dev/` from the documentation with `jdev/`. The returned
+value will be in `msg.payload`.
 
 The structure file can be retrieved via `http://<miniserver>/data/LoxAPP3.json`.
 
