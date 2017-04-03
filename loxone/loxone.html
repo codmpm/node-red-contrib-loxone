@@ -293,13 +293,16 @@
                     $('#node-input-room, #node-input-category').on('change', fillControl);
 
                     if (node.control) {
-                        $controlSelect.val(node.control);
-                        $controlSelect.trigger('change');
 
-                        //select proper room and categoriy for selected control
+                        //select proper room and category for selected control
                         var controlFromStructure = data.structure.controls[node.control];
                         $('#node-input-room').val(controlFromStructure.room);
                         $('#node-input-category').val(controlFromStructure.cat);
+
+                        fillControl();
+
+                        $controlSelect.val(node.control);
+                        $controlSelect.trigger('change');
 
                         if (node.state) {
                             $('#node-input-state').val(node.state);
@@ -412,12 +415,16 @@
                     var $controlSelect = $('#node-input-control');
 
                     if (node.control) {
-                        $controlSelect.val(node.control);
 
                         //select proper room and category for selected control
                         var controlFromStructure = data.structure.controls[node.control];
                         $('#node-input-room').val(controlFromStructure.room);
                         $('#node-input-category').val(controlFromStructure.cat);
+
+                        fillControl();
+
+                        $controlSelect.val(node.control);
+
                     }
 
 
@@ -447,7 +454,8 @@
         The structure of your Miniserver will be loaded on connecting an is selectable on adding an in- or out-node.
         <br>
         <br>
-        If you want, enable AES-256-CBC encryption and the commands get encrypted. Otherwise only hashing of the commands is done.<br>
+        If you want, enable AES-256-CBC encryption and the commands get encrypted. Otherwise commands won't be encrypted.<br>
+        The credentials are always hashed with the <code>apiKey</code>
         <br>
         <b>The miniserver is not capable to do full SSL-Encryption of the connection.</b><br>
         For further details, see the API-documentation.
@@ -482,7 +490,7 @@
         <label></label>
         <input type="checkbox" id="node-config-input-encrypted" style="display:inline-block; width:auto; vertical-align:top;">
         <label style="width: 70%;" for="node-config-input-encrypted">
-            Use AES Encryption?
+            Use AES command encryption?
         </label>
     </div>
 
@@ -528,6 +536,9 @@
     topic: "dev/cfg/version",
     code: 200
 }</pre>
+        <br>
+        <br>
+        <b>Currently no AES command encryption for Webservice-Calls</b>
     </p>
 
 </script>
