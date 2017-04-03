@@ -598,3 +598,54 @@
     });
 </script>
 
+
+
+<script type="text/x-red" data-help-name="loxone-online">
+    <p>
+        This node simply outputs <code>true</code> or <code>false</code> in
+        <code>msg.payload</code> when the miniserver comes online or goes offline.
+    </p>
+
+</script>
+
+
+<script type="text/x-red" data-template-name="loxone-online">
+
+    <div class="form-row">
+        <label for="node-input-miniserver">
+            <i class="fa fa-globe"></i>
+            Miniserver
+        </label>
+        <input type="text" id="node-input-miniserver">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+
+    <div class="form-row">
+        <span id="return-msg"></span>
+    </div>
+
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('loxone-online', {
+        category: 'loxone',
+        paletteLabel: 'online',
+        color: '#83B817',
+        defaults: {
+            name: {value: ''},
+            miniserver: {type: 'loxone-miniserver', required: true},
+        },
+        inputs: 0,
+        outputs: 1,
+        icon: "loxone.png",
+        align: "left",
+        label: function () {
+            return this.name || "online";
+        }
+    });
+</script>
+

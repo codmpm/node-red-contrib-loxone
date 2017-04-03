@@ -133,6 +133,7 @@ module.exports = function (RED) {
             node.connection = client;
 
             node.setConnectionState("green", "connected", "dot");
+            sendOnlineMsg(true);
         });
 
         client.on('connect_failed', function () {
@@ -142,6 +143,7 @@ module.exports = function (RED) {
 
         client.on('connection_error', function (error) {
             node.error('Miniserver connection error: ' + error);
+            node.setConnectionState("red", "connection error", "ring");
         });
 
         client.on('close', function () {
@@ -151,6 +153,7 @@ module.exports = function (RED) {
             node.connection = null;
 
             node.setConnectionState("yellow", "connection closed", "ring");
+            sendOnlineMsg(false);
         });
 
         client.on('send', function (message) {
@@ -233,10 +236,12 @@ module.exports = function (RED) {
                 client.once('close', function () {
                     done();
                 });
+
                 client.abort();
             } else {
                 done();
             }
+            sendOnlineMsg(false);
         });
 
     }
@@ -388,6 +393,30 @@ module.exports = function (RED) {
         return structure;
     };
 
+    function sendOnlineMsg(online) {
+
+        online = online || false;
+
+        RED.nodes.eachNode(function (theNode) {
+
+            if (theNode.type == 'loxone-online') {
+
+                var node = RED.nodes.getNode(theNode.id);
+
+                node.status({
+                    fill: (online) ? 'green' : 'yellow',
+                    shape: 'dot',
+                    text: (online) ? 'online' : 'offline'
+                });
+
+                node.send({
+                    payload: online
+                });
+            }
+        });
+
+    }
+
     function LoxoneControlInNode(config) {
 
         RED.nodes.createNode(this, config);
@@ -483,5 +512,15 @@ module.exports = function (RED) {
     }
 
     RED.nodes.registerType('loxone-webservice', LoxoneWebServiceNode);
+
+
+    function LoxoneOnlineNode(config) {
+        RED.nodes.createNode(this, config);
+        var node = this;
+        node.miniserver = RED.nodes.getNode(config.miniserver);
+    }
+
+    RED.nodes.registerType('loxone-online', LoxoneOnlineNode);
+
 
 };
