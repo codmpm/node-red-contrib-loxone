@@ -403,16 +403,20 @@ module.exports = function (RED) {
 
                 var node = RED.nodes.getNode(theNode.id);
 
-                node.status({
-                    fill: (online) ? 'green' : 'yellow',
-                    shape: 'dot',
-                    text: (online) ? 'online' : 'offline'
-                });
+                if (node) {
+                    node.status({
+                        fill: (online) ? 'green' : 'yellow',
+                        shape: 'dot',
+                        text: (online) ? 'online' : 'offline'
+                    });
 
-                node.send({
-                    payload: online
-                });
+                    node.send({
+                        payload: online
+                    });
+                }
+
             }
+
         });
 
     }
@@ -523,4 +527,5 @@ module.exports = function (RED) {
     RED.nodes.registerType('loxone-online', LoxoneOnlineNode);
 
 
-};
+}
+;

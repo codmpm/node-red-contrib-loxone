@@ -1,3 +1,6 @@
+### 0.2.1
+* fixed error on deploying after editing the config node
+
 ### 0.2.0
 * added online node
 * only controls shown regarding room/category on node editing 
