@@ -317,11 +317,11 @@ module.exports = function (RED) {
                     //get information on control from structure
                     var controlStructure = this.structureData.controls[ourControl];
 
-                    controlName = controlStructure.name;
-                    controlDetails = controlStructure.details;
-                    controlType = controlStructure.type;
-                    roomName = this.structureData.rooms[controlStructure.room].name;
-                    categoryName = this.structureData.cats[controlStructure.cat].name;
+                    controlName = controlStructure.name || null;
+                    controlDetails = controlStructure.details || null;
+                    controlType = controlStructure.type || null;
+                    roomName = this.structureData.rooms[controlStructure.room].name || null;
+                    categoryName = this.structureData.cats[controlStructure.cat].name || null;
 
                     //get state name
                     for (stateName in controlStructure.states) {
