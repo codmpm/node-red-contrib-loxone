@@ -123,7 +123,7 @@ module.exports = function (RED) {
         client.connect();
 
         client.on('connect', function () {
-            node.log('Miniserver connected (' + config.host + ':' + config.port) + ')';
+            node.log('Miniserver connected (' + config.host + ':' + config.port + ')');
             node.connected = true;
         });
 
@@ -133,7 +133,7 @@ module.exports = function (RED) {
             node.connection = client;
 
             node.setConnectionState("green", "connected", "dot");
-            sendOnlineMsg(true);
+            sendOnlineMsg(true, config.id);
         });
 
         client.on('connect_failed', function () {
@@ -153,7 +153,7 @@ module.exports = function (RED) {
             node.connection = null;
 
             node.setConnectionState("yellow", "connection closed", "ring");
-            sendOnlineMsg(false);
+            sendOnlineMsg(false, config.id);
         });
 
         client.on('send', function (message) {
@@ -206,6 +206,23 @@ module.exports = function (RED) {
 
         client.on('keepalive', function (time) {
             node.log('keepalive (' + time + 'ms)');
+
+            RED.nodes.eachNode(function (nodeData) {
+
+                if (nodeData.type === 'loxone-keepalive' &&
+                    nodeData.hasOwnProperty('miniserver') &&
+                    nodeData.miniserver === node.id) {
+
+                    var keepaliveNode = RED.nodes.getNode(nodeData.id);
+                    if (keepaliveNode) {
+                        keepaliveNode.send({
+                            topic: 'keepalive',
+                            payload: time
+                        });
+                    }
+                }
+            });
+
         });
 
         client.on('message_header', function (header) {
@@ -241,7 +258,7 @@ module.exports = function (RED) {
             } else {
                 done();
             }
-            sendOnlineMsg(false);
+            sendOnlineMsg(false, config.id);
         });
 
     }
@@ -291,7 +308,8 @@ module.exports = function (RED) {
         });
     };
 
-    LoxoneMiniserver.prototype.setConnectionState = function (color, text, shape = 'dot') {
+    LoxoneMiniserver.prototype.setConnectionState = function (color, text, shape) {
+        shape = shape || 'dot';
         var newState = function (item) {
             item.status({
                 fill: color,
@@ -393,13 +411,15 @@ module.exports = function (RED) {
         return structure;
     };
 
-    function sendOnlineMsg(online) {
+    function sendOnlineMsg(online, configId) {
 
         online = online || false;
 
         RED.nodes.eachNode(function (theNode) {
 
-            if (theNode.type == 'loxone-online') {
+            if (theNode.type === 'loxone-online' &&
+                theNode.hasOwnProperty('miniserver') &&
+                theNode.miniserver === configId) {
 
                 var node = RED.nodes.getNode(theNode.id);
 
@@ -520,12 +540,15 @@ module.exports = function (RED) {
 
     function LoxoneOnlineNode(config) {
         RED.nodes.createNode(this, config);
-        var node = this;
-        node.miniserver = RED.nodes.getNode(config.miniserver);
     }
 
     RED.nodes.registerType('loxone-online', LoxoneOnlineNode);
 
+    function LoxoneKeepaliveNode(config) {
+        RED.nodes.createNode(this, config);
+    }
 
-}
-;
+    RED.nodes.registerType('loxone-keepalive', LoxoneKeepaliveNode);
+
+
+};

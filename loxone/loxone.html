@@ -649,3 +649,57 @@
     });
 </script>
 
+
+<script type="text/x-red" data-help-name="loxone-keepalive">
+    <p>
+        This node outputs the current time (in ms) from the keepalive request
+        done by the underlying library every 2 minutes.<br>
+        The time could be used as an indicator on connection quality.<br>
+        <br>
+        See page 17 of the <a href="https://www.loxone.com/dede/wp-content/uploads/sites/2/2016/08/loxone-communicating-with-the-miniserver.pdf" target="_blank">
+        webservice documentation</a>.
+    </p>
+
+</script>
+
+<script type="text/x-red" data-template-name="loxone-keepalive">
+
+    <div class="form-row">
+        <label for="node-input-miniserver">
+            <i class="fa fa-globe"></i>
+            Miniserver
+        </label>
+        <input type="text" id="node-input-miniserver">
+    </div>
+
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+
+    <div class="form-row">
+        <span id="return-msg"></span>
+    </div>
+
+</script>
+
+<script type="text/javascript">
+    RED.nodes.registerType('loxone-keepalive', {
+        category: 'loxone',
+        paletteLabel: 'keepalive',
+        color: '#83B817',
+        defaults: {
+            name: {value: ''},
+            miniserver: {type: 'loxone-miniserver', required: true},
+        },
+        inputs: 0,
+        outputs: 1,
+        icon: "loxone.png",
+        align: "left",
+        label: function () {
+            return this.name || "keepalive";
+        }
+    });
+</script>
+
+
