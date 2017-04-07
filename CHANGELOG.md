@@ -1,3 +1,7 @@
+### 0.3.1
+* review readme
+* fixed image display from readme on flows.nodered.org
+
 ### 0.3.0
 * added keepalive node
 * correct handling of online-node with more than one miniserver connection
