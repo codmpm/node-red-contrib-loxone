@@ -34,6 +34,8 @@ Please use URI's in form of `jdev/sps/io/foo` (no leading `/`), simply replace `
 value will be in `msg.payload`.
 * Online: Emit's `true`/`false` for the state of the connection to the selected miniserver. Be careful as every failed 
 connection attempt sends a `false` over and over again till a connection could be established.
+* Keepalive: outputs the current time (in ms) from the keepalive request done by the underlying library (node-lox-ws-apio ) 
+every 2 minutes. See page 17 of the Loxone webservice documentation
 
 The structure file can be retrieved via `http://<miniserver>/data/LoxAPP3.json`.
 
