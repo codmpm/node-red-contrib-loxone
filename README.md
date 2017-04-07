@@ -56,7 +56,7 @@ the selected control. For example:
     
 I've discovered that a switch element emits its current state (`active`) two times with the same value.
 The first one when the trigger-button is pressed and second one when the button is released - so 
-take care of this as it might give you unexpected results.
+take care of this as it might give you unexpected results. This could be catched with [node-red-contrib-edge-trigger](http://flows.nodered.org/node/node-red-contrib-edge-trigger).
 Also keep in mind, that this element sends `1/0` but expects to be fed with `On/Off/Pulse`.
 
 ~~Maybe you can point me out, how to get `I1-I8` directly via the WS-API.~~ As only visualized controls are
