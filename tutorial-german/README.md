@@ -47,7 +47,7 @@ Bevor ihr die SD-Karte auf dem Leser nehmt, öffnet das Laufwerk `BOOT` und legt
 Datei namens `shh` (ohne Erweiterung) an. Eventuell müsst ihr die SD-Karte ein mal ziehen und wieder 
 einstecken, damit euch das Laufwerk angezeigt wird. 
 
-Da wir uns für Raspbian ohne Desktop entschieden haben müssen wir ja irgendwie zum Konfigurieren 
+Da wir uns für Raspbian ohne Desktop entschieden haben, müssen wir ja irgendwie zum Konfigurieren 
 auf den Pi kommen. Dazu nutzt man SSH (Secure Shell) um über einen Terminal die Kommandozeile
 zu bedienen. Seit letztem Jahr ist der SSH-Server aber standardmäßig deaktiviert, da einfach
 viel zu viele Leute Ihren Pi mit Standardpasswort im Internet hatten. Mit dem Anlegen der leeren
