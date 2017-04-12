@@ -29,7 +29,8 @@ Zuerst lädt man also Etcher von https://etcher.io/ herunter und installiert die
 
 Als Betriebssystem entscheiden wir uns für das offizielle Raspbian-Linux von 
 https://www.raspberrypi.org/downloads/raspbian/.
-Da wir keine Desktop-Umgebung benötigen, ladet bitte das dort angeboten `Raspbian Lite` herunter.
+Da wir keine Desktop-Umgebung benötigen, ladet bitte das dort angeboten `Raspbian Lite` herunter. Nach
+dem Entpacken erhaltet ihr eine `img`-Datei.
 
 Startet nun Etcher und wählt als "Laufwerk" euren SD-Kartenleser mit eingesteckter SD-Karte (mind. 4GB), 
 sowie `<datum>-raspbian-jessie-lite.img` als "Image":
