@@ -10,7 +10,7 @@ Ich bestelle meine Pi's bei reichelt. Dort ist der Service vorzüglich und der P
 mit zu den günstigsten. Natürlich könnt ihr auch irgendwo anders kaufen. Wenn gewünscht
 stelle ich gerne eine Liste mit Artikelnummern zur Verfügung.
 
-Ich empfehle aber auf jeden Fall ein 2A-Netzteil und eine Marken-Micro SD (Class 10, mind. 8GB). 
+Ich empfehle aber auf jeden Fall ein 2A-Netzteil und eine Marken-Micro SD (Class 10, 8GB). 
 
 ![Raspberry Pi 3 B Bundle](rpi3_bundle.jpg)
 
