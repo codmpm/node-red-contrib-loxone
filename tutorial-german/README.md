@@ -49,7 +49,7 @@ einstecken, damit euch das Laufwerk angezeigt wird.
 
 Da wir uns für Raspbian ohne Desktop entschieden haben, müssen wir ja irgendwie zum Konfigurieren 
 auf den Pi kommen. Dazu nutzt man SSH (Secure Shell) um über einen Terminal die Kommandozeile
-zu bedienen. Seit letztem Jahr ist der SSH-Server aber standardmäßig deaktiviert, da einfach
+zu bedienen. Seit letztem Jahr ist der SSH-Server unterRaspbian aber standardmäßig deaktiviert, da einfach
 viel zu viele Leute Ihren Pi mit Standardpasswort im Internet hatten. Mit dem Anlegen der leeren
 Datei schaltet man den SSH-Server dann explizit ein.
 
