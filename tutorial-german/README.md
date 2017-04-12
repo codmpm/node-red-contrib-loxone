@@ -1,9 +1,9 @@
 # Installation node-red/node-red-dashboard/node-red-contrib-loxone auf RaspberryPi
 
-Das vermehrt die Frag aufkam, wie man denn mit node-red starten kann, versuche ich mal den 
+Das vermehrt die Frage aufkam, wie man denn mit node-red starten kann, versuche ich mal den 
 üblichen weg - die Installation auf einem Raspberry Pi - zu erklären. Die Wahl fiel auf den
- Raspberry Pi 3B, weil dort für unter 1W genug Leistung und Schnittstellen zur Verfügung 
- stehen um eine komplette Heimautoamtion aufzubauen. Außerdem sind dafür sehr viele 
+ Raspberry Pi 3B, weil dort für unter 1 Watt genug Leistung und Schnittstellen zur Verfügung 
+ stehen um eine komplette Automation aufzubauen. Außerdem sind für diese Plattform sehr viele 
  Tutorials zu haben und preislich kommt man auch gut zurecht.
 
 Ich bestelle meine Pi's bei reichelt. Dort ist der Service vorzüglich und der Preis gehört 
@@ -13,6 +13,7 @@ stelle ich gerne eine Liste mit Artikelnummern zur Verfügung.
 Ich empfehle aber auf jeden Fall ein 2A-Netzteil und eine Marken-Micro SD (Class 10, mind. 8GB). 
 
 ![Raspberry Pi 3 B Bundle](rpi3_bundle.jpg)
+
 _Im Bild das offizielle Case, Raspberry Pi 3, MicroSD-Karte und -Leser (oben rechts) sowie 
 GooBay 5V/2A Netzteil._
 
@@ -24,33 +25,35 @@ Um ein Betriebssystem-Image (Abbild) auf eine SD-Karte zu schreiben, benötigt m
 Im Beispiel verwende ich [Etcher](https://etcher.io/), das für Windows, Linux und MacOS verfügbar ist.
 Natürlich geht auch der Win32DiskImager für Windows, `dd` unter Linux oder der ApplePi Baker unter OSX.
 
-Zuerst lädt man also Etcher von https://etcher.io/ herunter und installier diesen.
+Zuerst lädt man also Etcher von https://etcher.io/ herunter und installiert diesen.
 
 Als Betriebssystem entscheiden wir uns für das offizielle Raspbian-Linux von 
 https://www.raspberrypi.org/downloads/raspbian/.
-Da wir keine Desktop-Umgebung benötigen ladet bitte das dort angeboten `Raspbian Lite` herunter.
+Da wir keine Desktop-Umgebung benötigen, ladet bitte das dort angeboten `Raspbian Lite` herunter.
 
-Startet nun Etcher und wählt als "Laufwerk" euren SD-Kartenleser mit eingesteckter SD-Karte, sowie 
-`2017-04-10-raspbian-jessie-lite.img` als "Image":
+Startet nun Etcher und wählt als "Laufwerk" euren SD-Kartenleser mit eingesteckter SD-Karte (mind. 4GB), 
+sowie `<datum>-raspbian-jessie-lite.img` als "Image":
 
 ![Etcher Raspbian](etcher-raspbian-install.png)
 
 Nach einem beherzten Klick auf `Flash` könnt ihr euch erst mal ein erfrischendes Kaltgetränk 
-oder einen Kaffe genehmigen ;-) Nach ein paar Minuten ist das Image aber auch schon auf der SD-Karte.
-
-Bevor ihr die SD-Karte auf dem Leser nehmt, öffnet das Laufwerk `BOOT` und legt dort eine leere 
-Datei Namen `shh` (ohne Erweiterung) an. Eventuell müsst ihr die SD-Kart ein mal ziehen und wieder 
-einstecken, damit euch das Laufwerk angezeigt wird. 
-
-Da wir ein Raspbian ohne Desktop genommen haben müssen wir ja irgendwie zum Konfigurieren 
-auf den Pi kommen. Dazu nutzt man SSH (the Secure Shell) um über einen Terminal die Kommandozeile
-zu bedienen. Seit letztem Jahr ist der SSH-Server aber standardmäßig deaktiviert, da einfach
-viel zu viele Leute Ihren Pi mit Standardpasswort im Internet hatten. Mit dem Anlegen der leeren
-Datei schaltet man den SSH-Server explizit ein.
+oder einen Kaffe genehmigen ;-) Nach ein paar Minuten ist das Image dann schon auf der SD-Karte 
+und wird noch durch Etcher verifiziert.
 
 Super - ihr habt soeben ein Linux-Image auf eine SD-Karte geflasht!
 
-## First Start
+Bevor ihr die SD-Karte auf dem Leser nehmt, öffnet das Laufwerk `BOOT` und legt dort eine leere 
+Datei namens `shh` (ohne Erweiterung) an. Eventuell müsst ihr die SD-Kart ein mal ziehen und wieder 
+einstecken, damit euch das Laufwerk angezeigt wird. 
+
+Da wir ein Raspbian ohne Desktop genommen haben müssen wir ja irgendwie zum Konfigurieren 
+auf den Pi kommen. Dazu nutzt man SSH (Secure Shell) um über einen Terminal die Kommandozeile
+zu bedienen. Seit letztem Jahr ist der SSH-Server aber standardmäßig deaktiviert, da einfach
+viel zu viele Leute Ihren Pi mit Standardpasswort im Internet hatten. Mit dem Anlegen der leeren
+Datei schaltet man den SSH-Server dann explizit ein.
+
+
+## Erster Start
 Steckt nun die fertige SD-Karte in den SD-Kartenslot des noch stromlosen Raspberry Pis. 
 Die Karte im Computer bitte über die Funktion "Sicher entfernen" oder `umount` aushängen.
   
@@ -58,7 +61,7 @@ Die Karte im Computer bitte über die Funktion "Sicher entfernen" oder `umount` 
 * Versorgt den Pi mit einem Netzwerkkabel, dass mit eurem Heimnetz verbunden ist.
 * Steckt dann das Netzteil zuerst in den Pi und dann in die Steckdose
 
-Die rote LED sollte durchgehend Leuchten und die Gelbe sollte in unregelmäßigen Abständen 
+Die rote LED sollte durchgehend Leuchten, die Gelbe sollte in unregelmäßigen Abständen 
 blinken. Juhuuu - der Raspberry Pi bootet.
 
 ## Zugriff auf den Pi
@@ -69,7 +72,9 @@ sich damit automatisch mit einer IP-Adresse versorgt.
 Auf einer Fritz!Box beispielsweise geht das unter `Heimnetz -> Heimnetzübersicht -> Netzwerkverbindungen`:
 
 ![FritzBox IP](fritz-rpi-ip.png)
-_(Bitte nicht irritieren lassen: Der Pi hat nur ein 100MBit/s Interface)_
+
+_Bitte nicht irritieren lassen: Der Pi hat nur ein 100MBit/s Interface, ist in meinem Netz aber über 
+einen Switch angeschlossen, der der Fritzbox gegenüber Gigabit hat._
 
 Der Pi ist also über die nun bekannte IP erreichbar! Wenn man eine FritzBox besitzt, ist er - 
 genauso wie jedes andere Netzwerkgerät - auch über den Namen `raspberrypi.fritz.box` erreichbar.
@@ -82,16 +87,18 @@ Wie bekommt man nun also Zugang über SSH auf den Pi?
 
 ### Windows
   Hier kann man zum Beispiel [Putty](http://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html) 
-  verwenden. Für jeden anderen SSH-Client (SercureCRT, KiTTY, etc.) sind die Schritte analog auszuführen.
+  verwenden. Für jeden anderen SSH-Client (SecureCRT, KiTTY, etc.) sind die Schritte analog auszuführen.
   
-  Startet nun als PuTTY und gebt den gewünschten Hostnamen oder die IP ein und wählt `SSH` (Standard):
+  Startet also PuTTY und gebt den Hostnamen oder die IP ein und wählt `SSH` (Standard):
   ![PuTTY Connection](putty-host.png)
 
   Beim ersten Verbinden werdet ihr mit einer Warnung begrüßt:
   ![PuTTY Host Key](putty-host-key.png)
-  Diese Meldung ist völlig normal. SSH arbeitet so genannten Host-Keys wovon jeder SSH-Host einen 
+  
+  Diese Meldung ist völlig normal. SSH arbeitet mit sogenannten Host-Keys, wovon jeder SSH-Host einen 
   zufällig bei der Installation des SSH-Servers generierten besitzt. Bestätigt den für euch 
-  "neuen" SSH-Host-Key einfach mit "Ja".
+  "neuen" SSH-Host-Key einfach mit "Ja". PuTTY wird euch melden wenn unter dem gleichen Namen ein 
+  andere SSH-Host-Key präsentiert wird.
   
   PuTTY verbindet sich daraufhin mit dem SSH-Server des Raspberry Pi und möchte anschließend 
   einen Benutzernamen (`login`) von euch wissen. Nach Eingabe des Benutzers folgt logischerweise
@@ -100,11 +107,12 @@ Wie bekommt man nun also Zugang über SSH auf den Pi?
   Bei der Erstinstallation ist der Benutzer `pi` und das Passwort lautet `raspberry`.
   
   Ihr seid auf der Shell:
+  
   ![PuTTY Pi Shell](putty-first-connect.png)
 
 ### OSX / Linux
   Öffnet ein Terminal und gebt `ssh pi@<host/ip>` in die Konsole ein. Danach müsst ihr nur noch den 
-  oben bereits oben (Windows) erwähnten SSH-Host-Key mit `yes` bestätigen und das Passwort für den Benutzer `pi`
+  oben (Windows) bereits  erwähnten SSH-Host-Key mit `yes` bestätigen und das Passwort für den Benutzer `pi`
   eingeben.
   
   Als Beispiel: `ssh pi@raspberrypi.fritz.box` oder `ssh pi@raspberrypi.local`.
@@ -143,7 +151,7 @@ wurde.
 Wenn `apt update` mit der Meldung `All packages are up to date.` beendet wurde, ist man bereits 
 auf dem aktuellen Stand und braucht `apt full-upgrade` nicht mehr auszuführen.
   
-Unter Linux muss typischerweise nicht das komplette System neu gestartet werden um einen einzelen 
+Unter Linux muss typischerweise nicht das komplette System neu gestartet werden um einen einzelnen 
 Dienst neu zu starten oder zu aktualisieren. Wenn allerdings der Kern des Betriebssystems (Kernel)
 aktualisiert wurde, kommt man um einen Reboot nicht herum.
 
@@ -170,22 +178,24 @@ Danach könnt ihr mit TAB auf `<Finish>` springen und mit Enter bestätigen. Da 
 Änderungen vorgenommen habt, solltet ihr den Pi mit `sudo reboot` letztmalig neu starten.
 
 Mit `sudo halt` fahrt ihr das System herunter. Jedes mal wenn ihr plant den Pi vom Strom 
-zu trennen, solltet ihr dies tun. Dateisystem mögen es im allgemein nicht, wenn man ihnen 
+zu trennen, solltet ihr dies tun. Dateisysteme mögen es im Allgemeinen nicht, wenn man ihnen 
 einfach den Boden (Strom) unter den Füßen weg zieht.
 
 ## Installation node-red
-Node-Red ist in NodeJS geschrieben und benötigt zur Installation und für den Betrieb den 
-Node Package Manager (npm).
+Node-Red ist in NodeJS geschrieben und benötigt zur Installation und für den Betrieb logischerweise 
+Node JS und den Node Package Manager (npm).
 
 Die Jungs von Node-Red stellen ein Script zum Update von NodeJS, NPM und zur automatischen 
-Installation von Node-Red unter http://nodered.org/docs/hardware/raspberrypi, das wir hier 
-nutzen werden.
+Installation von Node-Red unter http://nodered.org/docs/hardware/raspberrypi zur Vefügung.
+Natürlich werden wir dieses hier nutzen.
 
 Verbindet euch erneut per SSH mit dem Pi.
 
-Copy & Pasted nun diese Zeilen in die Shell: 
+Copy & Pasted nun diese Zeile in die Shell: 
 
     bash <(curl -sL https://raw.githubusercontent.com/node-red/raspbian-deb-package/master/resources/update-nodejs-and-nodered)
+
+_(In PuTTY müsst ihr mit `SHIFT-EINFG` einfügen, da `STRG-V` nicht funktioniert.)_
 
 Das Script erklärt euch kurz was nun passieren wird, was ihr natürlich mit `y` bestätigen müsst.
 Danach startet auch bereits die automatische Aktualisierung und Installation von node-red.
@@ -208,14 +218,14 @@ Also Beispielsweise unter `http://raspberrypi.fritz.box:1880`.
 
 ![node-red webinterface](node-red-webif-fresh.png)
 
-Um Node-Red zu stoppen, drückt einfach `STRG-C' und der Prozess wird beendet.
+Um Node-Red zu stoppen, drückt einfach `STRG-C` und der Prozess wird beendet.
 
-__Achtung:__ Um beim nächsten Reboot automatisch zu starten, muss es als Systemdienst installiert werden. 
+__Achtung:__ Um beim nächsten Reboot Node-Red automatisch zu starten, muss es als Systemdienst installiert werden. 
 Dies geschieht mit 
 
     sudo systemctl enable nodered.service
    
-Um den Dienst zukünftig ne zu starten, zu stoppen oder erneut zu starten nutzt man:
+Um den Dienst zukünftig neu zu starten, zu stoppen oder erneut zu starten wenn er gestoppt wurde, nutzt man:
    
     sudo service nodered restart
     sudo service nodered stop
@@ -237,18 +247,6 @@ die man installieren möchte, suchen.
 Durch Klick auf `install` wird der gewünschte Node installiert und ist ab diesem Zeitpunkt
 in der "Palette" (links) verfügbar.
 
-### manuelle Installation
-Natürlich können nodes auch auf der Kommandozeile installiert werden. Verbindet damit also
-wieder per SSH mit dem Pi und wechselt in das Verzeichnis in den Node-Red die zugehörigen
-Dateien ablegt. Typischerweise im Home-Verzeichnis des Benutzers der Node-Red ausführt, 
-in unserem Fall also `/home/pi/.node-red/`.
-
-Auf die Schnelle kann man mit `~` in das home-Verzeichnis wechseln, also für uns 
- `cd ~/.node-red`.
- 
-Dort kann man mit `npm install <kompletter-name-des-nodes>` einen node installieren.
-Zum Beispiel: `npm install node-red-contrib-loxone`.
-
 ### node-red-dashboard
 `node-red-dashboard` installiert man auf genau dem gleichen Weg:
 
@@ -258,20 +256,32 @@ Nach der Installation ist dann das "Dashboard" unter `http://raspberrypi.fritz.b
 verfügbar. Natürlich ist dort noch nicht viel zu sehen, da ihr ja noch keine Nodes für 
 das Dashboard angelegt habt ;-)
 
+### Manuelle Installation
+Natürlich können nodes auch auf der Kommandozeile installiert werden. Verbindet also
+wieder per SSH mit dem Pi und wechselt in das Verzeichnis in den Node-Red seine zugehörigen
+Dateien ablegt. Typischerweise im Home-Verzeichnis des Benutzers der Node-Red ausführt, 
+in unserem Fall also `/home/pi/.node-red/`.
+
+Auf die Schnelle kann man mit `~` in das home-Verzeichnis wechseln, also für uns 
+ `cd ~/.node-red`.
+ 
+Dort kann man mit `npm install <kompletter-name-des-nodes>` einen node installieren.
+Zum Beispiel: `npm install node-red-contrib-loxone`.
+
 ## Update von Nodes
-Leider ist das Update der Nodes (noch) nicht so einfach. Für Version `0.17` ist geplant, dass
-das Update über den Palette Manager möglich sein soll. Aktuell muss das also noch per Hand passieren.
+Leider ist das Update der Nodes (noch) nicht so einfach. Für Node-Red Version `0.17` ist geplant, dass
+das Update über den Palette Manager möglich ist. Aktuell muss das aber noch per Hand passieren.
 
 Dies funktioniert genau wie die manuelle Installation:
 
     cd ~/.node-red
     npm update
     
-`npm update` aktualisiert alle nodes, für die ein Update ansteht. `npm update <node>` nur den angegebenen.
+`npm update` aktualisiert alle nodes, für die ein Update ansteht - `npm update <node>` nur den angegebenen.
 
 ## Deinstallieren von Nodes
 Aus technischen Gründen ist das nicht über das Webinterface möglich, muss also immer 
-per Hand passiere:
+per Hand passieren:
 
     cd ~/.node-red
     npm remove <node>
