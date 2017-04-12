@@ -58,7 +58,7 @@ Steckt nun die fertige SD-Karte in den SD-Kartenslot des noch stromlosen Raspber
 Die Karte im Computer bitte über die Funktion "Sicher entfernen" oder `umount` aushängen.
   
 * Ihr benötigt weder Tastatur noch Monitor am Raspberry Pi.
-* Versorgt den Pi mit einem Netzwerkkabel, dass mit eurem Heimnetz verbunden ist.
+* Versorgt den Pi mit einem Netzwerkkabel, das mit eurem Heimnetz verbunden ist.
 * Steckt dann das Netzteil zuerst in den Pi und dann in die Steckdose
 
 Die rote LED sollte durchgehend Leuchten, die Gelbe sollte in unregelmäßigen Abständen 
