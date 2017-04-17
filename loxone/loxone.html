@@ -18,17 +18,17 @@
         if (node) {
             var url = './loxone-miniserver/struct?id=' + node.id;
 
-            if (node.credentials || node.changed){
+            if (node.credentials || node.changed) {
                 url = './loxone-miniserver/struct-changed' +
                     '?id=' + node.id +
                     '&host=' + encodeURIComponent(node.host) +
                     '&port=' + encodeURIComponent(node.port);
 
-                if (node.credentials){
-                    if (node.credentials.username){
+                if (node.credentials) {
+                    if (node.credentials.username) {
                         url += '&username=' + encodeURIComponent(node.credentials.username);
                     }
-                    if (node.credentials.password){
+                    if (node.credentials.password) {
                         url += '&password=' + encodeURIComponent(node.credentials.password);
                     }
                 }
@@ -200,6 +200,8 @@
         </a>.
     </p>
 
+
+
 </script>
 
 <script type="text/x-red" data-template-name="loxone-control-in">
@@ -256,6 +258,8 @@
     <div class="form-row">
         <span id="return-msg"></span>
     </div>
+
+
 
 
 </script>
@@ -332,6 +336,8 @@
         Control as described in the Structure File Documentation.
     </p>
 
+
+
 </script>
 
 
@@ -380,6 +386,8 @@
     <div class="form-row">
         <span id="return-msg"></span>
     </div>
+
+
 
 </script>
 
@@ -443,7 +451,6 @@
 </script>
 
 
-
 <script type="text/x-red" data-help-name="loxone-miniserver">
     <p>
         Configure the Miniserver to connect to, the default port is 80. The credentials will be hashed with a key given by the Miniserver.<br>
@@ -460,6 +467,8 @@
         <b>The miniserver is not capable to do full SSL-Encryption of the connection.</b><br>
         For further details, see the API-documentation.
     </p>
+
+
 
 </script>
 
@@ -494,6 +503,8 @@
         </label>
     </div>
 
+
+
 </script>
 
 <script type="text/javascript">
@@ -518,7 +529,6 @@
 </script>
 
 
-
 <script type="text/x-red" data-help-name="loxone-webservice">
     <p>
         This is used to get a return from a webservice call through the existing
@@ -528,7 +538,10 @@
         See the <a href="https://www.loxone.com/enen/kb/web-services/" target="_blank">Webservice documenation</a><br>
         The configured Websocket-Connection is used for communication.<br>
         <br>
-        <code>msg.uri</code> from the incoming message object overwrites the set uri.
+        <code>msg.uri</code> from the incoming message object overwrites the set uri. <br>
+        <br>
+        You can choose if <code>msg.payload</code> should be appended to the URI call. This works for the set URIs
+        and for URIs from <code>msg.uri</code>.<br>
         <br>
         The return will hold the answer from the requested datapoint (URI):<br>
         <pre>{
@@ -540,6 +553,8 @@
         <br>
         <b>Currently no AES command encryption for Webservice-Calls</b>
     </p>
+
+
 
 </script>
 
@@ -562,6 +577,13 @@
         <input type="text" id="node-input-uri" placeholder="jdev/cfg/version">
     </div>
 
+    <div class="form-row" id="node-appendpayload">
+        <label>&nbsp;</label>
+        <input type="checkbox" id="node-input-appendpayload" style="display: inline-block; width: auto; vertical-align: top;">
+        <label for="node-input-appendpayload" style="width: 70%;">Append <code>msg.payload</code>?</label>
+    </div>
+
+
     <div class="form-row">
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
@@ -569,12 +591,18 @@
 
     <div class="form-tips">
         The URI has to start with <code>jdev/</code> as <code>dev/</code> is deprecated!<br>
-        Simply add use 'jdev' instead of 'dev' according to the documenation.
+        Simply add use 'jdev' instead of 'dev' according to the documenation.<br>
+        <br>
+        Checking the 'append payload' checkbox will append <code>msg.payload</code> to the set URI
+        either if it is set in the node or supplied via <code>msg.uri</code>.<br>
+        (<code>jdev/sps/foo/{msg.payload}</code>)
     </div>
 
     <div class="form-row">
         <span id="return-msg"></span>
     </div>
+
+
 
 </script>
 
@@ -586,7 +614,8 @@
         defaults: {
             name: {value: ''},
             miniserver: {type: 'loxone-miniserver', required: true},
-            uri: {value: ''}
+            uri: {value: ''},
+            appendpayload: {value: false}
         },
         inputs: 1,
         outputs: 1,
@@ -599,12 +628,13 @@
 </script>
 
 
-
 <script type="text/x-red" data-help-name="loxone-online">
     <p>
         This node simply outputs <code>true</code> or <code>false</code> in
         <code>msg.payload</code> when the miniserver comes online or goes offline.
     </p>
+
+
 
 </script>
 
@@ -627,6 +657,8 @@
     <div class="form-row">
         <span id="return-msg"></span>
     </div>
+
+
 
 </script>
 
@@ -660,6 +692,8 @@
         webservice documentation</a>.
     </p>
 
+
+
 </script>
 
 <script type="text/x-red" data-template-name="loxone-keepalive">
@@ -680,6 +714,8 @@
     <div class="form-row">
         <span id="return-msg"></span>
     </div>
+
+
 
 </script>
 

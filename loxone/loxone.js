@@ -523,12 +523,13 @@ module.exports = function (RED) {
                 return null;
             }
 
-            node.uri = wantedURI;
-            //node.log('sending ' + wantedURI);
+            node.uri = wantedURI + ((config.appendpayload === true) ? msg.payload : '');
+
+            //node.log('sending ' + node.uri);
 
             //add node to the queue for waiting messages and send the URI
             node.miniserver.registerWebserviceNode(node);
-            node.miniserver.connection.connection.send(wantedURI);
+            node.miniserver.connection.connection.send(node.uri);
 
         });
 

@@ -1,3 +1,6 @@
+### 0.4.0
+* webservice-node: added checkbox for appending `msg.payload` to the URI of the webservice node
+
 ### 0.3.1
 * review readme
 * fixed image display from readme on flows.nodered.org

@@ -78,6 +78,9 @@ The flow itself could be found here: http://flows.nodered.org/flow/0b3c81b336102
 The webservice node, added in version `0.1.0`, allows you to directly call webservice URI's through the already 
 established websocket connection.
 
+Beginning with version `0.4.0` you can choose to automaticly append the incoming `msg.payload` to the set URI. 
+This is handy to add dynamic content to the webservice call, for example `DownOn` or `DownOff`.
+
 As the `UpDownDigital` (etc.) virtual input has no state where the control-in node can listen to, I've switched it as 
 an example via the webservice-node. See a short video here: https://cloud.codm.de/nextcloud/index.php/s/IttSURIGl8OkUBf
 
