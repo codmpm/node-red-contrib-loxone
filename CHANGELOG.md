@@ -1,6 +1,6 @@
 ### 0.4.1
 * merged PR #7
-* `node-lox-ws-api` updated to `0.3.1`
+* `node-lox-ws-api` updated to 0.3.1
 * disconnect on AES fixed
 * AES now also for webservice calls        
 
@@ -24,7 +24,7 @@
 ### 0.2.0
 * added online node
 * only controls shown regarding room/category on node editing 
-* updated `node-lox-ws-api` to 0.2.8
+* updated `node-lox-ws-api` to 0.2.8groovy
 * updated `ws` to 2.2.3
 
 ### 0.1.0
