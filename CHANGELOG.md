@@ -1,3 +1,9 @@
+### 0.4.1
+* merged PR #7
+* `node-lox-ws-api` updated to `0.3.1`
+* disconnect on AES fixed
+* AES now also for webservice calls        
+
 ### 0.4.0
 * webservice-node: added checkbox for appending `msg.payload` to the URI of the webservice node
 

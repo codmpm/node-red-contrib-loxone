@@ -100,7 +100,8 @@ take care of this as it might give you unexpected results. This could be catched
 Also keep in mind, that this element sends `1/0` but expects to be fed with `On/Off/Pulse`.
 
 ### Known bugs
-* If using AES, the miniserver will disconnect after 2-3 fast commands, simply disable it for now.
+* ~~If using AES, the miniserver will disconnect after 2-3 fast commands, simply disable it for now.~~ 
+fixed with version `0.4.1`.
 
 ### ToDo 
 * Convenience / Testing!

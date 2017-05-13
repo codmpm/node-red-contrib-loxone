@@ -198,6 +198,9 @@
         <a href="https://www.loxone.com/dede/wp-content/uploads/sites/2/2016/08/loxone-structure-file.pdf?x48792" target="_blank">
             Loxones Structure File
         </a>.
+        <br>
+        <br>
+        <b>Note:</b> For elements to show up, they have to be set visualized and have to be in a room or category.
     </p>
 
 
@@ -334,6 +337,9 @@
         <br>
         <b>Note:</b> Keep in mind, that you have to submit valid data to the Miniserver
         Control as described in the Structure File Documentation.
+        <br>
+        <br>
+        <b>Note:</b> For elements to show up, they have to be set visualized and have to be in a room or category.
     </p>
 
 
@@ -453,18 +459,21 @@
 
 <script type="text/x-red" data-help-name="loxone-miniserver">
     <p>
-        Configure the Miniserver to connect to, the default port is 80. The credentials will be hashed with a key given by the Miniserver.<br>
+        Configure the Miniserver to connect to, the default port is 80. The credentials will be hashed with a <code>apiKey</code>
+        provided by the Miniserver.<br>
         <br>
         A websocket connection will be made and kept alive. All communication with the Miniserver will be handled
         over this connection as described in Loxones <a href="https://www.loxone.com/dede/wp-content/uploads/sites/2/2016/08/loxone-communicating-with-the-miniserver.pdf" target="_blank">
         Websocket API</a>.<br>
-        The structure of your Miniserver will be loaded on connecting an is selectable on adding an in- or out-node.
+        The structure of your Miniserver will be loaded on connecting an is selectable on adding nodes.
         <br>
         <br>
-        If you want, enable AES-256-CBC encryption and the commands get encrypted. Otherwise commands won't be encrypted.<br>
-        The credentials are always hashed with the <code>apiKey</code>
+        If you want, enable AES-256-CBC encryption so control- and webservice-messages will be encrypted.<br>
+        Wether you enable encryption or not, the credentials are always hashed with the <code>apiKey</code> .
+        <br>
         <br>
         <b>The miniserver is not capable to do full SSL-Encryption of the connection.</b><br>
+        <br>
         For further details, see the API-documentation.
     </p>
 
@@ -549,12 +558,7 @@
     topic: "dev/cfg/version",
     code: 200
 }</pre>
-        <br>
-        <br>
-        <b>Currently no AES command encryption for Webservice-Calls</b>
     </p>
-
-
 
 </script>
 
