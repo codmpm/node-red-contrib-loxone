@@ -13,7 +13,7 @@ So please know how to handle the data according to the [structure file](https://
 or the [webservice documenation](https://www.loxone.com/enen/kb/web-services/).
 
 The connection to the miniserver is encrypted (hashed) via node-lox-ws-api (only for control-in and control-out), AES-256-CBC for command encryption 
-is possible but should not be needed in the local network. The AES Encryption only applies to the control-out node, the credentials for the connection 
+is possible but should not be needed in the local network. The AES Encryption only applies to the nodes, the credentials for the connection 
 are hashed anyway and will not be transmitted in plaintext. 
 Keepalive is handled via `node-lox-ws-api`.
 
@@ -21,7 +21,7 @@ Keepalive is handled via `node-lox-ws-api`.
 
 As I don't have an own Loxone installation, I can't do a "real world" test. Gladly a friend of mine lent me his spare miniserver for initial testing.
 
-Tested with loxone-config V8.3.3.21, node-red 0.16.2, nodeJS 6.10.1 LTS
+Tested with loxone-config V8.3.3.21, node-red 0.16.2, nodeJS 6.10.3 LTS
 
 ### Nodes
 * **Miniserver**: Configure a miniserver connection used by every other node
@@ -99,9 +99,14 @@ The first one when the trigger-button is pressed and second one when the button 
 take care of this as it might give you unexpected results. This could be catched with a delay node.
 Also keep in mind, that this element sends `1/0` but expects to be fed with `On/Off/Pulse`.
 
-### Known bugs
-* ~~If using AES, the miniserver will disconnect after 2-3 fast commands, simply disable it for now.~~ 
-fixed with version `0.4.1`.
+### nodeJS
+I advice you to use the latest [LTS version](https://github.com/nodejs/LTS) of nodeJS - currently `6.10.3`.
+
+If you realy can not update to a supported version of nodeJS, the last version of node-red-contrib-loxone running with 
+nodeJS `< 4.5` is `0.4.0` which can be installed with:
+
+    cd ~/.node-red
+    npm install node-red-contrib-loxone@0.4.0
 
 ### ToDo 
 * Convenience / Testing!

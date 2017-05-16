@@ -1,8 +1,11 @@
+### 0.4.2
+* `node-lox-ws-api` updated to `0.3.2`
+
 ### 0.4.1
-* merged PR #7
-* `node-lox-ws-api` updated to 0.3.1
+* `node-lox-ws-api` updated to `0.3.1`
 * disconnect on AES fixed
-* AES now also for webservice calls        
+* AES now also for webservice calls
+* dropped support for nodeJS `< 4.5`
 
 ### 0.4.0
 * webservice-node: added checkbox for appending `msg.payload` to the URI of the webservice node
