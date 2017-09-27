@@ -1,6 +1,6 @@
 # node-red-contrib-loxone
 
-**Attention: node-red-contrib-loxone is currently not working with Loxone 9 - we are working on a solution**
+> **Attention: node-red-contrib-loxone is currently not working with Loxone 9 - we are working on a solution**
 
 This node connects the Loxone Miniserver to node-red. It uses [node-lox-ws-api](https://github.com/alladdin/node-lox-ws-api) 
 by Ladislav Dokulil based on Loxone's documenation for the [Websocket API](https://www.loxone.com/dede/wp-content/uploads/sites/2/2016/08/loxone-communicating-with-the-miniserver.pdf).
