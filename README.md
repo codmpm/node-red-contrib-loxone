@@ -26,7 +26,7 @@ Keepalive is handled via `node-lox-ws-api`.
 
 As I don't have an own Loxone installation, I can't do a "real world" test. Gladly a friend of mine lent me his spare miniserver for initial testing.
 
-Tested with loxone-config V8.3.3.21, node-red 0.16.2, nodeJS 6.10.3 LTS
+Tested with loxone-config V9.0.9.26, node-red 0.17.6, nodeJS 6.11.3 LTS
 
 ### Nodes
 * **Miniserver**: Configure a miniserver connection used by every other node
