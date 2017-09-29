@@ -1,3 +1,7 @@
+### 0.5.0
+* updated `node-lox-ws-api` to `0.3.4` for an intermediate solution working with Loxone 9
+* added checkbox to activate a miniserver connection
+
 ### 0.4.2
 * `node-lox-ws-api` updated to `0.3.2`
 

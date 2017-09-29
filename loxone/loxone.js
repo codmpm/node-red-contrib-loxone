@@ -17,7 +17,11 @@ module.exports = function (RED) {
             structure: {}
         };
 
-        if (configNode && configNode.connected) {
+        if(configNode.active !== true){
+            result.msg = 'connection disabled'
+        }
+
+        if (configNode && configNode.active && configNode.connected) {
 
             result = {
                 state: 'ok',
@@ -42,6 +46,7 @@ module.exports = function (RED) {
         var password = req.query.password;
 
         var configNode = RED.nodes.getNode(req.query.id);
+
         if (configNode) {
             if (!username) {
                 username = configNode.credentials.username;
@@ -49,6 +54,11 @@ module.exports = function (RED) {
             if (!password) {
                 password = configNode.credentials.password;
             }
+
+            if(configNode.active !== true){
+                result.msg = 'connection disabled'
+            }
+
         }
 
         http.get({
@@ -107,6 +117,12 @@ module.exports = function (RED) {
         node._outputNodes = [];
         node._webserviceNodes = []; //only webservice nodes which have a message sent will be here
 
+        //do nothing if miniserver is not active
+        if(config.active !== true){
+            node.log('connection to ' + config.host + ':' + config.port + ' disabled');
+            return;
+        }
+
         var text_logger_limit = 100;
         var ws_auth = config.encrypted ? 'AES-256-CBC' : 'Hash';
 
@@ -151,9 +167,10 @@ module.exports = function (RED) {
             node.connected = false;
             node.authenticated = false;
             node.connection = null;
+            client.abort();
 
             node.setConnectionState("yellow", "connection closed", "ring");
-            sendOnlineMsg(false, config.id);
+            //sendOnlineMsg(false, config.id);
         });
 
         client.on('send', function (message) {
@@ -316,7 +333,11 @@ module.exports = function (RED) {
                 shape: shape,
                 text: text
             });
+
+            //console.log(item.status);
         };
+
+        //console.log(this._inputNodes);
 
         this._inputNodes.forEach(newState);
         this._outputNodes.forEach(newState);
@@ -455,9 +476,17 @@ module.exports = function (RED) {
             node.miniserver.registerInputNode(node);
 
             this.on('close', function (done) {
+
+                node.status({
+                    fill: 'yellow',
+                    shape: 'dot',
+                    text: 'offline'
+                });
+
                 if (node.miniserver) {
                     node.miniserver.deregisterInputNode(node);
                 }
+
                 done();
             });
         }
@@ -483,6 +512,13 @@ module.exports = function (RED) {
             });
 
             this.on('close', function (done) {
+
+                node.status({
+                    fill: 'yellow',
+                    shape: 'dot',
+                    text: 'offline'
+                });
+
                 if (node.miniserver) {
                     node.miniserver.deregisterOutputNode(node);
                 }
