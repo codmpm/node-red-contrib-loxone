@@ -6,7 +6,7 @@
 
 
 This node connects the Loxone Miniserver to node-red. It uses [node-lox-ws-api](https://github.com/alladdin/node-lox-ws-api) 
-by Ladislav Dokulil based on Loxone's documenation for the [Websocket API](https://www.loxone.com/dede/wp-content/uploads/sites/2/2016/08/loxone-communicating-with-the-miniserver.pdf).
+by Ladislav Dokulil based on Loxone's documenation for the [Websocket API](https://www.loxone.com/dede/wp-content/uploads/sites/2/2016/08/0900_Communicating-with-the-Miniserver.pdf).
 
 It enables you to connect the Loxone Miniserver directly to node-red and work with the data
 on occuring events. As this uses the official Websocket, you will only see controls that are 
@@ -26,7 +26,7 @@ Keepalive is handled via `node-lox-ws-api`.
 
 As I don't have an own Loxone installation, I can't do a "real world" test. Gladly a friend of mine lent me his spare miniserver for initial testing.
 
-Tested with loxone-config V9.0.9.26, node-red 0.17.6, nodeJS 6.11.3 LTS
+Tested with loxone-config V9.0.9.26, node-red 0.17.5, nodeJS 6.11.3 LTS
 
 ### Nodes
 * **Miniserver**: Configure a miniserver connection used by every other node
