@@ -206,6 +206,8 @@
 
 
 
+
+
 </script>
 
 <script type="text/x-red" data-template-name="loxone-control-in">
@@ -262,6 +264,8 @@
     <div class="form-row">
         <span id="return-msg"></span>
     </div>
+
+
 
 
 
@@ -347,6 +351,8 @@
 
 
 
+
+
 </script>
 
 
@@ -395,6 +401,8 @@
     <div class="form-row">
         <span id="return-msg"></span>
     </div>
+
+
 
 
 
@@ -472,16 +480,13 @@
         The structure of your Miniserver will be loaded on connecting an is selectable on adding nodes.
         <br>
         <br>
-        If you want, enable AES-256-CBC encryption so control- and webservice-messages will be encrypted.<br>
-        Wether you enable encryption or not, the credentials are always hashed with the <code>apiKey</code> .
-        <br>
+        The encryption on Loxone V9 defaults to <code>Token-Enc</code>. For Miniserver on verions 8 or older use
+        <code>AES-256-CBC</code> or <code>Hash</code>.
         <br>
         <b>The miniserver is not capable to do full SSL-Encryption of the connection.</b><br>
         <br>
         For further details, see the API-documentation.
     </p>
-
-
 
 
 </script>
@@ -509,6 +514,16 @@
         <label for="node-config-input-password"><i class="fa fa-lock"></i> Password</label>
         <input type="password" id="node-config-input-password">
     </div>
+
+    <div class="form-row">
+        <label for="node-config-input-enctype"><i class="fa fa-key"></i> Encryption</label>
+        <select id="node-config-input-enctype">
+            <option value="0">Token (default)</option>
+            <option value="1">AES-256-CBC</option>
+            <option value="2">Hash</option>
+        </select>
+    </div>
+
     <div class="form-row">
         <label></label>
         <input type="checkbox" id="node-config-input-active" style="display:inline-block; width:auto; vertical-align:top;">
@@ -516,15 +531,21 @@
             Activate connection?
         </label>
     </div>
-    <div class="form-row">
-        <label></label>
-        <input type="checkbox" id="node-config-input-encrypted" style="display:inline-block; width:auto; vertical-align:top;">
-        <label style="width: 70%;" for="node-config-input-encrypted">
-            Use AES command encryption?
-        </label>
+
+    <div class="form-tips">
+        <b>Caution:</b> Loxone changed the authentication type beginning with Loxone version 9!<br>
+        <br>
+        They introduced the new Token-Based-Auth and deprecated the known encryption <code>AES-256-CBC</code> and <code>Hash</code>.
+        Untill March 2018 these two are still supported in version 9, but you are encouraged to use the new auth.<br>
+        <br>
+        <code>AES-256-CBC</code> and <code>Hash</code> are still needed to communicate with miniserver versions
+        8 or older.<br>
+        <br>
+        Node-red-contrib-loxone will default to the new Token-Based-Authentication unless you explicitly change it.<br>
+        <br>
+        <small>For more Information see <a href="https://www.loxone.com/dede/wp-content/uploads/sites/2/2016/08/0900_Communicating-with-the-Miniserver.pdf"
+        target="_blank">Communicating with the Loxone Miniserver</a> page 19.</small>
     </div>
-
-
 
 
 </script>
@@ -535,7 +556,8 @@
         defaults: {
             host: {value: "", required: true},
             port: {value: 80, required: true, validate: RED.validators.number()},
-            encrypted: {value: false},
+            //encrypted: {value: false},
+            enctype: {value: "0", required: true},
             active: {value: true}
         },
         credentials: {
@@ -544,10 +566,10 @@
         },
         label: function () {
             return this.host + ':' + this.port;
-        },
+        }/*,
         oneditsave: function () {
             this.encrypted = $('#node-config-input-encrypted').prop('checked');
-        }
+        }*/
     });
 </script>
 
@@ -573,6 +595,8 @@
     code: 200
 }</pre>
     </p>
+
+
 
 
 </script>
@@ -624,6 +648,8 @@
 
 
 
+
+
 </script>
 
 <script type="text/javascript">
@@ -657,6 +683,8 @@
 
 
 
+
+
 </script>
 
 
@@ -678,6 +706,8 @@
     <div class="form-row">
         <span id="return-msg"></span>
     </div>
+
+
 
 
 
@@ -717,6 +747,8 @@
 
 
 
+
+
 </script>
 
 <script type="text/x-red" data-template-name="loxone-keepalive">
@@ -737,6 +769,8 @@
     <div class="form-row">
         <span id="return-msg"></span>
     </div>
+
+
 
 
 

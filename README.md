@@ -1,9 +1,6 @@
 # node-red-contrib-loxone
 
-> **Attention:**
-> Beginning with version 0.5 Loxone 9 is supported. Still work needed for a propper communication.
-> @alladdin implemented an interim solution in `node-lox-ws-api 0.3.4` to get it to work with Loxone 9. 
-
+> **Beginning with version 0.6.0 Loxone 9's new Token-Based-Auth is fully supported through node-lox-ws-api 0.4.2!**  
 
 This node connects the Loxone Miniserver to node-red. It uses [node-lox-ws-api](https://github.com/alladdin/node-lox-ws-api) 
 by Ladislav Dokulil based on Loxone's documenation for the [Websocket API](https://www.loxone.com/dede/wp-content/uploads/sites/2/2016/08/0900_Communicating-with-the-Miniserver.pdf).
@@ -17,19 +14,18 @@ visualized in Loxone-Config.
 So please know how to handle the data according to the [structure file](https://www.loxone.com/dede/wp-content/uploads/sites/2/2016/08/loxone-structure-file.pdf?x48792) 
 or the [webservice documenation](https://www.loxone.com/enen/kb/web-services/).
 
-The connection to the miniserver is encrypted (hashed) via node-lox-ws-api (only for control-in and control-out), AES-256-CBC for command encryption 
-is possible but should not be needed in the local network. The AES Encryption only applies to the nodes, the credentials for the connection 
-are hashed anyway and will not be transmitted in plaintext. 
-Keepalive is handled via `node-lox-ws-api`.
+As of Loxone V9 the new token based authentification should be used. If you are still using V8 or earlier, please use `AES-256-CBC` or 
+`Hash`. The "old" authentification methods will be supported by Loxone in version 9 till March 2018.
+
+Keepalive is handled via `node-lox-ws-api` and token based authentication is used if available.
+
+As I don't have an own Loxone installation, I can't do a "real world" test. Gladly a friend of mine lent me his spare miniserver for initial testing.
+Tested with loxone-config V9.0.9.26, node-red 0.17.5, nodeJS 6.11.4 LTS
 
 > Help, pull requests and feedback in general are very welcome!
 
-As I don't have an own Loxone installation, I can't do a "real world" test. Gladly a friend of mine lent me his spare miniserver for initial testing.
-
-Tested with loxone-config V9.0.9.26, node-red 0.17.5, nodeJS 6.11.3 LTS
-
 ### Nodes
-* **Miniserver**: Configure a miniserver connection used by every other node
+* **Miniserver**: Configure a miniserver connection used by every other node, optionally activate the connection.
 * **Control-In**: Select a control and a state to hook an event which then gets passed to node-red on occurence.
 * **Control-Out**: Select a control and feed it commands according to the [structure file](https://www.loxone.com/dede/wp-content/uploads/sites/2/2016/08/loxone-structure-file.pdf?x48792)
 * **Webservice**: Send direct webservice calls through the existing websocket, see the [webservice documenation](https://www.loxone.com/enen/kb/web-services/). 
@@ -136,14 +132,15 @@ or via node-red's `Manage palette`.
 5. Submit a pull request :D
 
 ### Credits
-Patrik Mayer with great help from [Ladislav Dokulil](https://github.com/alladdin), 2017 
-
-I'm not affiliated with [Loxone](https://www.loxone.com/) in any way.
+Patrik Mayer with great help from [Ladislav Dokulil](https://github.com/alladdin) without whom this could not be possible, 2017 
 
 Many thanks to [Nick O'Leary](https://github.com/knolleary), [Dave Conway-Jones](https://github.com/dceejay/)
  and everyone else from the node-red Slack-Channel. 
 
 Also the people from the ever helpful [LoxForum](https://www.loxforum.com/) have to be mentioned.
+
+I'm not affiliated with [Loxone](https://www.loxone.com/) in any way.
+
 
 ### License
 MIT

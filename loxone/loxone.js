@@ -4,6 +4,12 @@ module.exports = function (RED) {
     const node_lox_ws_api = require("node-lox-ws-api");
     const http = require('http');
 
+    const encMethods = {
+        0: 'Token-Enc',
+        1: 'AES-256-CBC',
+        2: 'Hash'
+    };
+
 
     RED.httpAdmin.get('/loxone-miniserver/struct', function (req, res) {
         if (!req.query.id) {
@@ -113,18 +119,23 @@ module.exports = function (RED) {
         node.authenticated = false;
         node.connection = null;
         node.structureData = null;
+        node.active = config.active;
         node._inputNodes = [];
         node._outputNodes = [];
         node._webserviceNodes = []; //only webservice nodes which have a message sent will be here
 
-        //do nothing if miniserver is not active
+        //do nothing if miniserver connection is not active
         if(config.active !== true){
             node.log('connection to ' + config.host + ':' + config.port + ' disabled');
             return;
         }
 
         var text_logger_limit = 100;
-        var ws_auth = config.encrypted ? 'AES-256-CBC' : 'Hash';
+
+        node.encMethod = 'Token-Enc';
+        if(encMethods.hasOwnProperty(config.enctype)){
+            node.encMethod = encMethods[config.enctype];
+        }
 
         //node.log('connecting miniserver at ' + config.host + ':' + config.port);
 
@@ -133,13 +144,13 @@ module.exports = function (RED) {
             node.credentials.username,
             node.credentials.password,
             true,
-            ws_auth
+            node.encMethod
         );
 
         client.connect();
 
         client.on('connect', function () {
-            node.log('Miniserver connected (' + config.host + ':' + config.port + ')');
+            node.log('Miniserver connected (' + config.host + ':' + config.port + ') using ' + node.encMethod);
             node.connected = true;
         });
 
