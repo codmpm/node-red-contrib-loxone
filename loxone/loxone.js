@@ -9,8 +9,6 @@ module.exports = function (RED) {
         2: 'Hash'
     };
 
-    var reconnectTime = RED.settings.socketReconnectTime||10000;
-    
     RED.httpAdmin.get('/loxone-miniserver/struct', function (req, res) {
         if (!req.query.id) {
             return res.json("");
@@ -183,9 +181,6 @@ module.exports = function (RED) {
             node.setConnectionState("yellow", "connection closed", "ring");
             //sendOnlineMsg(false, config.id);
 
-            setTimeout(function() {
--                           client.connect();
--                        },reconnectTime);
         });
 
         client.on('send', function (message) {
