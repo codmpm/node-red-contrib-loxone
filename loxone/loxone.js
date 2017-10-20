@@ -519,7 +519,9 @@ module.exports = function (RED) {
             node.miniserver.registerOutputNode(node);
 
             this.on('input', function (msg) {
-                node.miniserver.connection.send_control_command(node.control, msg.payload);
+                if(node.connected && node.miniserver.connection) {                    
+                    node.miniserver.connection.send_control_command(node.control, msg.payload);
+                }
             });
 
             this.on('close', function (done) {
@@ -575,8 +577,10 @@ module.exports = function (RED) {
             //node.log('sending ' + node.uri);
 
             //add node to the queue for waiting messages and send the URI
-            node.miniserver.registerWebserviceNode(node);
-            node.miniserver.connection.send_command(node.uri);
+            if(node.connected && node.miniserver.connection) {
+                node.miniserver.registerWebserviceNode(node);
+                node.miniserver.connection.send_command(node.uri);
+            }
 
         });
 
