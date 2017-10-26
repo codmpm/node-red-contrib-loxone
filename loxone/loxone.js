@@ -3,13 +3,11 @@ module.exports = function (RED) {
     "use strict";
     const node_lox_ws_api = require("node-lox-ws-api");
     const http = require('http');
-
     const encMethods = {
         0: 'Token-Enc',
         1: 'AES-256-CBC',
         2: 'Hash'
     };
-
 
     RED.httpAdmin.get('/loxone-miniserver/struct', function (req, res) {
         if (!req.query.id) {
@@ -182,6 +180,7 @@ module.exports = function (RED) {
 
             node.setConnectionState("yellow", "connection closed", "ring");
             //sendOnlineMsg(false, config.id);
+
         });
 
         client.on('send', function (message) {
@@ -519,7 +518,9 @@ module.exports = function (RED) {
             node.miniserver.registerOutputNode(node);
 
             this.on('input', function (msg) {
-                node.miniserver.connection.send_control_command(node.control, msg.payload);
+                if(node.connected && node.miniserver.connection) {                    
+                    node.miniserver.connection.send_control_command(node.control, msg.payload);
+                }
             });
 
             this.on('close', function (done) {
@@ -575,8 +576,10 @@ module.exports = function (RED) {
             //node.log('sending ' + node.uri);
 
             //add node to the queue for waiting messages and send the URI
-            node.miniserver.registerWebserviceNode(node);
-            node.miniserver.connection.send_command(node.uri);
+            if(node.connected && node.miniserver.connection) {
+                node.miniserver.registerWebserviceNode(node);
+                node.miniserver.connection.send_command(node.uri);
+            }
 
         });
 
