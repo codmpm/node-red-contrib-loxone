@@ -21,7 +21,7 @@ module.exports = function (RED) {
             structure: {}
         };
 
-        if(configNode.active !== true){
+        if (configNode.active !== true) {
             result.msg = 'connection disabled'
         }
 
@@ -59,7 +59,7 @@ module.exports = function (RED) {
                 password = configNode.credentials.password;
             }
 
-            if(configNode.active !== true){
+            if (configNode.active !== true) {
                 result.msg = 'connection disabled'
             }
 
@@ -120,22 +120,23 @@ module.exports = function (RED) {
         node.active = config.active;
         node._inputNodes = [];
         node._outputNodes = [];
-        node._webserviceNodes = []; //only webservice nodes which have a message sent will be here
+        node._webserviceNodes = [];
+        node._webserviceNodeQueue = []; //only webservice nodes which are waiting for a return will be here
 
         //do nothing if miniserver connection is not active
-        if(config.active !== true){
+        if (config.active !== true) {
             node.log('connection to ' + config.host + ':' + config.port + ' disabled');
+
+            node.setConnectionState("grey", "connection disabled", "dot");
             return;
         }
 
         var text_logger_limit = 100;
 
         node.encMethod = 'Token-Enc';
-        if(encMethods.hasOwnProperty(config.enctype)){
+        if (encMethods.hasOwnProperty(config.enctype)) {
             node.encMethod = encMethods[config.enctype];
         }
-
-        //node.log('connecting miniserver at ' + config.host + ':' + config.port);
 
         var client = new node_lox_ws_api(
             config.host + ':' + config.port,
@@ -158,7 +159,7 @@ module.exports = function (RED) {
             node.connection = client;
 
             node.setConnectionState("green", "connected", "dot");
-            sendOnlineMsg(true, config.id);
+            sendOnlineNodeMsg(true, config.id);
         });
 
         client.on('connect_failed', function () {
@@ -176,12 +177,32 @@ module.exports = function (RED) {
             node.connected = false;
             node.authenticated = false;
             node.connection = null;
-            client.abort();
 
-            node.setConnectionState("yellow", "connection closed", "ring");
-            //sendOnlineMsg(false, config.id);
+            //node.log('active on client close' + node.active);
+
+            if (node.active !== true) {
+                client.abort();
+                node.setConnectionState("grey", "connection disabled", "ring");
+            } else {
+                node.setConnectionState("yellow", "connection closed", "ring");
+            }
+
+            sendOnlineNodeMsg(false, config.id);
 
         });
+
+        this.on('close', function (done) {
+
+            if (node.connected) {
+                client.once('close', function () {
+                    done();
+                });
+            } else {
+                done();
+            }
+
+        });
+
 
         client.on('send', function (message) {
             //node.log("sent message: " + message);
@@ -201,11 +222,11 @@ module.exports = function (RED) {
                     break;
                 case 'control':
 
-                    for (var i in node._webserviceNodes) {
+                    for (var i in node._webserviceNodeQueue) {
 
-                        var wsNode = node._webserviceNodes[i];
+                        var wsNode = node._webserviceNodeQueue[i];
 
-                        if (wsNode.uri == 'j' + message.control) {
+                        if (wsNode.uri === 'j' + message.control) {
 
                             var msg = {
                                 'payload': message.value,
@@ -217,7 +238,7 @@ module.exports = function (RED) {
                             wsNode.send(msg);
 
                             //unregister node from queue
-                            node.deregisterWebserviceNode(wsNode);
+                            node.removeWebserviceNodeFromQueue(wsNode);
                             break;
                         }
                     }
@@ -275,19 +296,6 @@ module.exports = function (RED) {
         client.on('update_event_daytimer', _updateEvent);
         client.on('update_event_weather', _updateEvent);
 
-        this.on('close', function (done) {
-            if (node.connected) {
-                client.once('close', function () {
-                    done();
-                });
-
-                client.abort();
-            } else {
-                done();
-            }
-            sendOnlineMsg(false, config.id);
-        });
-
     }
 
     RED.nodes.registerType("loxone-miniserver", LoxoneMiniserver, {
@@ -308,6 +316,10 @@ module.exports = function (RED) {
 
     LoxoneMiniserver.prototype.registerWebserviceNode = function (handler) {
         this._webserviceNodes.push(handler);
+    };
+
+    LoxoneMiniserver.prototype.addWebserviceNodeToQueue = function (handler) {
+        this._webserviceNodeQueue.push(handler);
     };
 
 
@@ -335,6 +347,15 @@ module.exports = function (RED) {
         });
     };
 
+
+    LoxoneMiniserver.prototype.removeWebserviceNodeFromQueue = function (handler) {
+        this._webserviceNodeQueue.forEach(function (node, i, outputNodes) {
+            if (node === handler) {
+                outputNodes.splice(i, 1);
+            }
+        });
+    };
+
     LoxoneMiniserver.prototype.setConnectionState = function (color, text, shape) {
         shape = shape || 'dot';
         var newState = function (item) {
@@ -343,14 +364,11 @@ module.exports = function (RED) {
                 shape: shape,
                 text: text
             });
-
-            //console.log(item.status);
         };
-
-        //console.log(this._inputNodes);
 
         this._inputNodes.forEach(newState);
         this._outputNodes.forEach(newState);
+        this._webserviceNodes.forEach(newState);
     };
 
     LoxoneMiniserver.prototype.handleEvent = function (uuid, event) {
@@ -442,7 +460,7 @@ module.exports = function (RED) {
         return structure;
     };
 
-    function sendOnlineMsg(online, configId) {
+    function sendOnlineNodeMsg(online, configId) {
 
         online = online || false;
 
@@ -456,9 +474,9 @@ module.exports = function (RED) {
 
                 if (node) {
                     node.status({
-                        fill: (online) ? 'green' : 'yellow',
+                        fill: (node.miniserver.active !== true) ? 'grey' : 'yellow',
                         shape: 'dot',
-                        text: (online) ? 'online' : 'offline'
+                        text: (node.miniserver.active !== true) ? 'connection disabled' : 'offline'
                     });
 
                     node.send({
@@ -481,21 +499,24 @@ module.exports = function (RED) {
         node.control = config.control;
 
         node.miniserver = RED.nodes.getNode(config.miniserver);
+        node.miniserver.registerInputNode(node);
 
         if (node.miniserver) {
-            node.miniserver.registerInputNode(node);
 
             this.on('close', function (done) {
 
+                /*
                 node.status({
-                    fill: 'yellow',
+                    fill: (node.miniserver.active !== true) ? 'grey' : 'yellow',
                     shape: 'dot',
-                    text: 'offline'
+                    text: (node.miniserver.active !== true) ? 'connection disabled' : 'offline'
                 });
+                */
 
+                /*
                 if (node.miniserver) {
                     node.miniserver.deregisterInputNode(node);
-                }
+                }*/
 
                 done();
             });
@@ -512,28 +533,31 @@ module.exports = function (RED) {
 
         node.control = config.control;
         node.miniserver = RED.nodes.getNode(config.miniserver);
+        node.miniserver.registerOutputNode(node);
 
         if (node.miniserver) {
 
-            node.miniserver.registerOutputNode(node);
-
             this.on('input', function (msg) {
-                if(node.connected && node.miniserver.connection) {                    
+                if (node.connected && node.miniserver.connection) {
                     node.miniserver.connection.send_control_command(node.control, msg.payload);
                 }
             });
 
             this.on('close', function (done) {
 
+                /*
                 node.status({
-                    fill: 'yellow',
+                    fill: (node.miniserver.active !== true) ? 'grey' : 'yellow',
                     shape: 'dot',
-                    text: 'offline'
+                    text: (node.miniserver.active !== true) ? 'connection disabled' : 'offline'
                 });
+                */
 
+                /*
                 if (node.miniserver) {
                     node.miniserver.deregisterOutputNode(node);
-                }
+                }*/
+
                 done();
             });
         }
@@ -546,42 +570,63 @@ module.exports = function (RED) {
     function LoxoneWebServiceNode(config) {
         RED.nodes.createNode(this, config);
         var node = this;
+
         node.miniserver = RED.nodes.getNode(config.miniserver);
+        node.miniserver.registerWebserviceNode(node);
 
-        this.on('input', function (msg) {
+        if (node.miniserver) {
 
-            node.status({});
-            var wantedURI = msg.uri || config.uri;
+            this.on('close', function (done) {
 
-            if (!wantedURI.length) {
+                /*
                 node.status({
-                    fill: 'yellow',
-                    shape: 'ring',
-                    text: 'empty uri'
+                    fill: (node.miniserver.active !== true) ? 'grey' : 'yellow',
+                    shape: 'dot',
+                    text: (node.miniserver.active !== true) ? 'connection disabled' : 'offline'
                 });
-                return null;
-            }
+                */
 
-            if (!wantedURI.match(/^jdev/)) {
-                node.status({
-                    fill: 'yellow',
-                    shape: 'ring',
-                    text: 'invalid uri'
-                });
-                return null;
-            }
+                //node.miniserver.deregisterWebserviceNode(node);
 
-            node.uri = wantedURI + ((config.appendpayload === true) ? msg.payload : '');
+                done();
+            });
 
-            //node.log('sending ' + node.uri);
+            this.on('input', function (msg) {
 
-            //add node to the queue for waiting messages and send the URI
-            if(node.connected && node.miniserver.connection) {
-                node.miniserver.registerWebserviceNode(node);
-                node.miniserver.connection.send_command(node.uri);
-            }
+                node.status({});
+                var wantedURI = msg.uri || config.uri;
 
-        });
+                if (!wantedURI.length) {
+                    node.status({
+                        fill: 'red',
+                        shape: 'ring',
+                        text: 'empty uri'
+                    });
+                    return null;
+                }
+
+                if (!wantedURI.match(/^jdev/)) {
+                    node.status({
+                        fill: 'red',
+                        shape: 'ring',
+                        text: 'invalid uri'
+                    });
+                    return null;
+                }
+
+                node.uri = wantedURI + ((config.appendpayload === true) ? msg.payload : '');
+
+                //node.log('sending ' + node.uri);
+
+                //add node to the queue for waiting messages and send the URI
+                if (node.connected && node.miniserver.connection) {
+                    node.miniserver.addWebserviceNodeToQueue(node);
+                    node.miniserver.connection.send_command(node.uri);
+                }
+
+            });
+
+        }
 
 
     }
