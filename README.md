@@ -1,6 +1,6 @@
 # node-red-contrib-loxone
 
-> **Beginning with version 0.6.0 Loxone 9's new Token-Based-Auth is fully supported through node-lox-ws-api 0.4.2!**  
+> **Beginning with version 0.6.0 Loxone 9's new Token-Based-Auth is fully supported through node-lox-ws-api!**  
 
 > Thank you everyone, the miniserver is funded: https://www.gofundme.com/miniserver-fur-nodered-entwicklung
 
