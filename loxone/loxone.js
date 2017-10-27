@@ -117,7 +117,7 @@ module.exports = function (RED) {
         node.authenticated = false;
         node.connection = null;
         node.structureData = null;
-        node.active = config.active;
+        node.active = true; //config.active;
         node._inputNodes = [];
         node._outputNodes = [];
         node._webserviceNodes = [];
@@ -127,7 +127,7 @@ module.exports = function (RED) {
         if (config.active !== true) {
             node.log('connection to ' + config.host + ':' + config.port + ' disabled');
 
-            node.setConnectionState("grey", "connection disabled", "dot");
+            node.setConnectionStatusMsg("grey", "connection disabled", "dot");
             return;
         }
 
@@ -158,18 +158,18 @@ module.exports = function (RED) {
             node.authenticated = true;
             node.connection = client;
 
-            node.setConnectionState("green", "connected", "dot");
+            node.setConnectionStatusMsg("green", "connected", "dot");
             sendOnlineNodeMsg(true, config.id);
         });
 
         client.on('connect_failed', function () {
             node.error('Miniserver connect failed');
-            node.setConnectionState("red", "connection failed", "ring");
+            node.setConnectionStatusMsg("red", "connection failed", "ring");
         });
 
         client.on('connection_error', function (error) {
             node.error('Miniserver connection error: ' + error);
-            node.setConnectionState("red", "connection error", "ring");
+            node.setConnectionStatusMsg("red", "connection error", "ring");
         });
 
         client.on('close', function () {
@@ -178,28 +178,18 @@ module.exports = function (RED) {
             node.authenticated = false;
             node.connection = null;
 
+
             //node.log('active on client close' + node.active);
 
-            if (node.active !== true) {
+            /*if (node.active !== true) {
                 client.abort();
-                node.setConnectionState("grey", "connection disabled", "ring");
+                node.setConnectionStatusMsg("grey", "connection disabled", "ring");
             } else {
-                node.setConnectionState("yellow", "connection closed", "ring");
-            }
+                node.setConnectionStatusMsg("yellow", "connection closed", "ring");
+            }*/
 
+            node.setConnectionStatusMsg("yellow", "connection closed", "ring");
             sendOnlineNodeMsg(false, config.id);
-
-        });
-
-        this.on('close', function (done) {
-
-            if (node.connected) {
-                client.once('close', function () {
-                    done();
-                });
-            } else {
-                done();
-            }
 
         });
 
@@ -296,6 +286,22 @@ module.exports = function (RED) {
         client.on('update_event_daytimer', _updateEvent);
         client.on('update_event_weather', _updateEvent);
 
+
+        this.on('close', function (done) {
+            //on (full-)deploys close event shutdown the client
+            if (node.connected) {
+                client.once('close', function () {
+
+                    console.log('We are here!');
+                    done();
+                });
+                client.abort();
+            } else {
+                done();
+            }
+
+        });
+
     }
 
     RED.nodes.registerType("loxone-miniserver", LoxoneMiniserver, {
@@ -356,7 +362,7 @@ module.exports = function (RED) {
         });
     };
 
-    LoxoneMiniserver.prototype.setConnectionState = function (color, text, shape) {
+    LoxoneMiniserver.prototype.setConnectionStatusMsg = function (color, text, shape) {
         shape = shape || 'dot';
         var newState = function (item) {
             item.status({
@@ -379,7 +385,8 @@ module.exports = function (RED) {
                 var ourControl = this._inputNodes[i].control;
                 var controlName, stateName, roomName, categoryName, controlDetails, controlType;
 
-                if (typeof this.structureData.controls[ourControl] != 'undefined') {
+                //if (typeof this.structureData.controls[ourControl] != 'undefined') {
+                if (this.structureData.hasOwnProperty(ourControl)) {
 
                     //get information on control from structure
                     var controlStructure = this.structureData.controls[ourControl];
@@ -473,11 +480,13 @@ module.exports = function (RED) {
                 var node = RED.nodes.getNode(theNode.id);
 
                 if (node) {
+                    /*
                     node.status({
                         fill: (node.miniserver.active !== true) ? 'grey' : 'yellow',
                         shape: 'dot',
                         text: (node.miniserver.active !== true) ? 'connection disabled' : 'offline'
                     });
+                    */
 
                     node.send({
                         payload: online
@@ -499,24 +508,16 @@ module.exports = function (RED) {
         node.control = config.control;
 
         node.miniserver = RED.nodes.getNode(config.miniserver);
-        node.miniserver.registerInputNode(node);
 
         if (node.miniserver) {
 
+            node.miniserver.registerInputNode(node);
+
             this.on('close', function (done) {
 
-                /*
-                node.status({
-                    fill: (node.miniserver.active !== true) ? 'grey' : 'yellow',
-                    shape: 'dot',
-                    text: (node.miniserver.active !== true) ? 'connection disabled' : 'offline'
-                });
-                */
-
-                /*
                 if (node.miniserver) {
                     node.miniserver.deregisterInputNode(node);
-                }*/
+                }
 
                 done();
             });
@@ -533,31 +534,21 @@ module.exports = function (RED) {
 
         node.control = config.control;
         node.miniserver = RED.nodes.getNode(config.miniserver);
-        node.miniserver.registerOutputNode(node);
 
         if (node.miniserver) {
 
+            node.miniserver.registerOutputNode(node);
+
             this.on('input', function (msg) {
-                if (node.connected && node.miniserver.connection) {
+                if (node.miniserver.connected && node.miniserver.connection) {
                     node.miniserver.connection.send_control_command(node.control, msg.payload);
                 }
             });
 
             this.on('close', function (done) {
-
-                /*
-                node.status({
-                    fill: (node.miniserver.active !== true) ? 'grey' : 'yellow',
-                    shape: 'dot',
-                    text: (node.miniserver.active !== true) ? 'connection disabled' : 'offline'
-                });
-                */
-
-                /*
                 if (node.miniserver) {
                     node.miniserver.deregisterOutputNode(node);
-                }*/
-
+                }
                 done();
             });
         }
@@ -572,22 +563,16 @@ module.exports = function (RED) {
         var node = this;
 
         node.miniserver = RED.nodes.getNode(config.miniserver);
-        node.miniserver.registerWebserviceNode(node);
+
 
         if (node.miniserver) {
 
+            node.miniserver.registerWebserviceNode(node);
+
             this.on('close', function (done) {
-
-                /*
-                node.status({
-                    fill: (node.miniserver.active !== true) ? 'grey' : 'yellow',
-                    shape: 'dot',
-                    text: (node.miniserver.active !== true) ? 'connection disabled' : 'offline'
-                });
-                */
-
-                //node.miniserver.deregisterWebserviceNode(node);
-
+                if (node.miniserver) {
+                    node.miniserver.deregisterWebserviceNode(node);
+                }
                 done();
             });
 
@@ -619,7 +604,7 @@ module.exports = function (RED) {
                 //node.log('sending ' + node.uri);
 
                 //add node to the queue for waiting messages and send the URI
-                if (node.connected && node.miniserver.connection) {
+                if (node.miniserver.connected && node.miniserver.connection) {
                     node.miniserver.addWebserviceNodeToQueue(node);
                     node.miniserver.connection.send_command(node.uri);
                 }

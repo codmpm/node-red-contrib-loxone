@@ -1,3 +1,14 @@
+### 0.6.1
+* updated `node-lox-ws-api` to `0.4.3` to fix reconnect bug 
+* removed wrong `client.abort()` on `client.close`
+* removed "activate connection" checkbox for now
+* refactoring
+
+### 0.6.0
+* complete Token-Based-Auth support through updated node-lox-ws-api 0.4.2*
+* new option to select encryption type for the miniserver connection, defaults to Token-Enc
+* fixed bug where the structure did not load due to wrong active connection interpretation
+
 ### 0.5.0
 * updated `node-lox-ws-api` to `0.3.4` for an intermediate solution working with Loxone 9
 * added checkbox to activate a miniserver connection
