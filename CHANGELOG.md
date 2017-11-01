@@ -1,3 +1,6 @@
+### 0.6.2
+* fixed missing msg-object data in control-in node introduced in `0.6.1`
+
 ### 0.6.1
 * updated `node-lox-ws-api` to `0.4.3` to fix reconnect bug 
 * removed wrong `client.abort()` on `client.close`

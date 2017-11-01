@@ -380,13 +380,16 @@ module.exports = function (RED) {
     LoxoneMiniserver.prototype.handleEvent = function (uuid, event) {
 
         for (var i = 0; i < this._inputNodes.length; i++) {
-            if (this._inputNodes[i].state == uuid) {
+
+            if (this._inputNodes[i].state === uuid) {
 
                 var ourControl = this._inputNodes[i].control;
                 var controlName, stateName, roomName, categoryName, controlDetails, controlType;
 
-                //if (typeof this.structureData.controls[ourControl] != 'undefined') {
-                if (this.structureData.hasOwnProperty(ourControl)) {
+                if (
+                    this.structureData.hasOwnProperty('controls') &&
+                    this.structureData.controls.hasOwnProperty(ourControl)
+                ) {
 
                     //get information on control from structure
                     var controlStructure = this.structureData.controls[ourControl];
@@ -399,7 +402,10 @@ module.exports = function (RED) {
 
                     //get state name
                     for (stateName in controlStructure.states) {
-                        if (controlStructure.states[stateName] == this._inputNodes[i].state) {
+                        if (
+                            controlStructure.states.hasOwnProperty(stateName) &&
+                            controlStructure.states[stateName] === this._inputNodes[i].state
+                        ) {
                             break;
                         }
                     }
