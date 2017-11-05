@@ -33,6 +33,8 @@ Tested with loxone-config V9.0.9.26, node-red 0.17.5, nodeJS 6.11.4 LTS
 * **Webservice**: Send direct webservice calls through the existing websocket, see the [webservice documenation](https://www.loxone.com/enen/kb/web-services/). 
 Please use URI's in form of `jdev/sps/io/foo` (no leading `/`), simply replace `dev/` from the documentation with `jdev/`. The returned
 value will be in `msg.payload`.
+* **Stream-In**: Receive all (!) occuring events from a selected room and/or category. Could be handy to put every temperature (e.g.) into 
+a database or something - see the node for more info.
 * **Online**: Emit's `true`/`false` for the state of the connection to the selected miniserver. Be careful as every failed 
 connection attempt sends a `false` over and over again till a connection could be established.
 * **Keepalive**: outputs the current time (in ms) from the keepalive request done by the underlying library (node-lox-ws-api) 
@@ -103,7 +105,7 @@ take care of this as it might give you unexpected results. This could be catched
 Also keep in mind, that this element sends `1/0` but expects to be fed with `On/Off/Pulse`.
 
 ### nodeJS
-I advice you to use the latest [LTS version](https://github.com/nodejs/LTS) of nodeJS - currently `6.10.3`.
+I advice you to use the latest [LTS version](https://github.com/nodejs/LTS) of nodeJS - currently `6.11.5`.
 
 If you realy can not update to a supported version of nodeJS, the last version of node-red-contrib-loxone running with 
 nodeJS `< 4.5` is `0.4.0` which can be installed with:

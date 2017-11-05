@@ -1,3 +1,8 @@
+### 0.7.0
+* added stream-in node
+* removed keepalive log message
+* refactored event handling and building of msg-object
+
 ### 0.6.2
 * fixed missing msg-object data in control-in node introduced in `0.6.1`
 

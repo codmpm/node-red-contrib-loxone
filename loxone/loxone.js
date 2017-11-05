@@ -120,6 +120,7 @@ module.exports = function (RED) {
         node.active = true; //config.active;
         node._inputNodes = [];
         node._outputNodes = [];
+        node._streamInNodes = [];
         node._webserviceNodes = [];
         node._webserviceNodeQueue = []; //only webservice nodes which are waiting for a return will be here
 
@@ -243,7 +244,7 @@ module.exports = function (RED) {
 
 
         client.on('keepalive', function (time) {
-            node.log('keepalive (' + time + 'ms)');
+            //node.log('keepalive (' + time + 'ms)');
 
             RED.nodes.eachNode(function (nodeData) {
 
@@ -324,6 +325,11 @@ module.exports = function (RED) {
         this._webserviceNodes.push(handler);
     };
 
+    LoxoneMiniserver.prototype.registerStreamInNode = function (handler) {
+        this._streamInNodes.push(handler);
+    };
+
+
     LoxoneMiniserver.prototype.addWebserviceNodeToQueue = function (handler) {
         this._webserviceNodeQueue.push(handler);
     };
@@ -341,6 +347,14 @@ module.exports = function (RED) {
         this._outputNodes.forEach(function (node, i, outputNodes) {
             if (node === handler) {
                 outputNodes.splice(i, 1);
+            }
+        });
+    };
+
+    LoxoneMiniserver.prototype.deregisterStreamInNode = function (handler) {
+        this._streamInNodes.forEach(function (node, i, streamInNodes) {
+            if (node === handler) {
+                streamInNodes.splice(i, 1);
             }
         });
     };
@@ -374,69 +388,99 @@ module.exports = function (RED) {
 
         this._inputNodes.forEach(newState);
         this._outputNodes.forEach(newState);
+        this._streamInNodes.forEach(newState);
         this._webserviceNodes.forEach(newState);
+    };
+
+    LoxoneMiniserver.prototype.findControlByState = function (uuid) {
+
+        //search in all controls for given state uuid to find the corresponding control
+        for (var wantedControlUuid in this.structureData.controls) {
+            if (
+                this.structureData.controls.hasOwnProperty(wantedControlUuid) &&
+                this.structureData.controls[wantedControlUuid].hasOwnProperty('states')
+            ) {
+                for (var curState in  this.structureData.controls[wantedControlUuid].states) {
+                    if (
+                        this.structureData.controls[wantedControlUuid].states.hasOwnProperty(curState) &&
+                        this.structureData.controls[wantedControlUuid].states[curState] === uuid
+                    ) {
+                        return this.structureData.controls[wantedControlUuid];
+                    }
+                }
+            }
+        }
+
+        return null;
+    };
+
+    LoxoneMiniserver.prototype.buildMsgObject = function (event, uuid, controlStructure) {
+
+        //get state name
+        var stateName;
+        for (stateName in controlStructure.states) {
+            if (
+                controlStructure.states.hasOwnProperty(stateName) &&
+                controlStructure.states[stateName] === uuid
+            ) {
+                break;
+            }
+        }
+
+        //evaluate payload
+        var payload;
+        try {
+            payload = JSON.parse(event);
+        }
+        catch (err) {
+            payload = event;
+        }
+
+        return {
+            payload: payload,
+            topic: controlStructure.name || null,
+            state: stateName,
+            room: this.structureData.rooms[controlStructure.room].name || null,
+            category: this.structureData.cats[controlStructure.cat].name || null,
+            details: controlStructure.details || null,
+            type: controlStructure.type || null
+        };
+
     };
 
     LoxoneMiniserver.prototype.handleEvent = function (uuid, event) {
 
-        for (var i = 0; i < this._inputNodes.length; i++) {
+        var i, curNode, curRoom, curCategory;
+        var controlStructure = this.findControlByState(uuid);
 
-            if (this._inputNodes[i].state === uuid) {
+        //do we have a control for this uuid? could also be weather or global
+        if (controlStructure) {
 
-                var ourControl = this._inputNodes[i].control;
-                var controlName, stateName, roomName, categoryName, controlDetails, controlType;
+            //publish event to control-in nodes
+            for (i = 0; i < this._inputNodes.length; i++) {
+                if (this._inputNodes[i].state === uuid) {
+                    this._inputNodes[i].send(this.buildMsgObject(event, uuid, controlStructure));
+                }
+            }
+
+            //publish event to stream-in node
+            for (i = 0; i < this._streamInNodes.length; i++) {
+
+                curNode = this._streamInNodes[i];
+                curRoom = (curNode.hasOwnProperty('room')) ? curNode.room : null;
+                curCategory = (curNode.hasOwnProperty('category')) ? curNode.category : null;
+
+                //neither category or room present/filled, continue
+                if (!curRoom && !curCategory) {
+                    continue;
+                }
 
                 if (
-                    this.structureData.hasOwnProperty('controls') &&
-                    this.structureData.controls.hasOwnProperty(ourControl)
+                    (!curRoom || curRoom === controlStructure.room) &&
+                    (!curCategory || curCategory === controlStructure.cat)
                 ) {
-
-                    //get information on control from structure
-                    var controlStructure = this.structureData.controls[ourControl];
-
-                    controlName = controlStructure.name || null;
-                    controlDetails = controlStructure.details || null;
-                    controlType = controlStructure.type || null;
-                    roomName = this.structureData.rooms[controlStructure.room].name || null;
-                    categoryName = this.structureData.cats[controlStructure.cat].name || null;
-
-                    //get state name
-                    for (stateName in controlStructure.states) {
-                        if (
-                            controlStructure.states.hasOwnProperty(stateName) &&
-                            controlStructure.states[stateName] === this._inputNodes[i].state
-                        ) {
-                            break;
-                        }
-                    }
-
-                    //this.log('got "' + stateName + '" for "' + controlName + '"');
-
-                } else {
-                    //this.log('got message for ' + this._inputNodes[i].state);
+                    curNode.send(this.buildMsgObject(event, uuid, controlStructure));
                 }
-
-
-                var payload;
-                try {
-                    payload = JSON.parse(event);
-                }
-                catch (err) {
-                    payload = event;
-                }
-
-                var msg = {
-                    payload: payload,
-                    topic: controlName,
-                    state: stateName,
-                    room: roomName,
-                    category: categoryName,
-                    details: controlDetails,
-                    type: controlType
-                };
-
-                this._inputNodes[i].send(msg);
-
             }
         }
 
@@ -638,4 +682,31 @@ module.exports = function (RED) {
     RED.nodes.registerType('loxone-keepalive', LoxoneKeepaliveNode);
 
 
+    RED.nodes.registerType('loxone-stream-in', LoxoneStreamInNode);
+
+    function LoxoneStreamInNode(config) {
+
+        RED.nodes.createNode(this, config);
+        var node = this;
+
+        node.category = config.category;
+        node.room = config.room;
+
+        node.miniserver = RED.nodes.getNode(config.miniserver);
+
+        if (node.miniserver) {
+
+            node.miniserver.registerStreamInNode(node);
+
+            this.on('close', function (done) {
+
+                if (node.miniserver) {
+                    node.miniserver.deregisterStreamInNode(node);
+                }
+
+                done();
+            });
+        }
+
+    }
 };
