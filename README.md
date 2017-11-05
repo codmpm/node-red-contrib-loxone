@@ -21,13 +21,15 @@ As of Loxone V9 the new token based authentification should be used. If you are 
 
 Keepalive is handled via `node-lox-ws-api` and token based authentication is used if available.
 
-As I don't have an own Loxone installation, I can't do a "real world" test. Gladly a friend of mine lent me his spare miniserver for initial testing.
-Tested with loxone-config V9.0.9.26, node-red 0.17.5, nodeJS 6.11.4 LTS
+As I don't have an own Loxone installation, I can't do a "real world" test. Gladly have an own miniserver through the 
+mentioned crowdfunding campaign. Again, thank you all!
+
+Tested with loxone-config V9.0.9.26, node-red 0.17.5, nodeJS 6.11.5 LTS
 
 > Help, pull requests and feedback in general are very welcome!
 
 ### Nodes
-* **Miniserver**: Configure a miniserver connection used by every other node, optionally activate the connection.
+* **Miniserver**: Configure a miniserver connection used by every other node.
 * **Control-In**: Select a control and a state to hook an event which then gets passed to node-red on occurence.
 * **Control-Out**: Select a control and feed it commands according to the [structure file](https://www.loxone.com/dede/wp-content/uploads/sites/2/2016/08/loxone-structure-file.pdf?x48792)
 * **Webservice**: Send direct webservice calls through the existing websocket, see the [webservice documenation](https://www.loxone.com/enen/kb/web-services/). 
