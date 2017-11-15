@@ -476,7 +476,7 @@ module.exports = function (RED) {
                     this._inputNodes[i].send(this.buildMsgObject(event, uuid, controlStructure));
                 }
             }
-            console.log(this._streamAllNodes.length);
+
             for (i = 0; i < this._streamAllNodes.length; i++) {
                 curNode = this._streamAllNodes[i];
                 try {
