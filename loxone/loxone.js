@@ -121,6 +121,7 @@ module.exports = function (RED) {
         node._inputNodes = [];
         node._outputNodes = [];
         node._streamInNodes = [];
+        node._streamAllNodes = [];
         node._webserviceNodes = [];
         node._webserviceNodeQueue = []; //only webservice nodes which are waiting for a return will be here
 
@@ -329,6 +330,10 @@ module.exports = function (RED) {
         this._streamInNodes.push(handler);
     };
 
+    LoxoneMiniserver.prototype.registerStreamAllNode = function (handler) {
+        this._streamAllNodes.push(handler);
+    };
+
 
     LoxoneMiniserver.prototype.addWebserviceNodeToQueue = function (handler) {
         this._webserviceNodeQueue.push(handler);
@@ -355,6 +360,14 @@ module.exports = function (RED) {
         this._streamInNodes.forEach(function (node, i, streamInNodes) {
             if (node === handler) {
                 streamInNodes.splice(i, 1);
+            }
+        });
+    };
+
+    LoxoneMiniserver.prototype.deregisterStreamAllNode = function (handler) {
+        this._streamAllNodes.forEach(function (node, i, streamAllNodes) {
+            if (node === handler) {
+                streamAllNodes.splice(i, 1);
             }
         });
     };
@@ -389,6 +402,7 @@ module.exports = function (RED) {
         this._inputNodes.forEach(newState);
         this._outputNodes.forEach(newState);
         this._streamInNodes.forEach(newState);
+        this._streamAllNodes.forEach(newState);
         this._webserviceNodes.forEach(newState);
     };
 
@@ -460,6 +474,15 @@ module.exports = function (RED) {
             for (i = 0; i < this._inputNodes.length; i++) {
                 if (this._inputNodes[i].state === uuid) {
                     this._inputNodes[i].send(this.buildMsgObject(event, uuid, controlStructure));
+                }
+            }
+            console.log(this._streamAllNodes.length);
+            for (i = 0; i < this._streamAllNodes.length; i++) {
+                curNode = this._streamAllNodes[i];
+                try {
+                    curNode.send(this.buildMsgObject(event, uuid, controlStructure));
+                } catch (error) {
+                    
                 }
             }
 
@@ -709,4 +732,33 @@ module.exports = function (RED) {
         }
 
     }
+
+
+    RED.nodes.registerType('loxone-stream-all', LoxoneStreamAllNode);
+
+    function LoxoneStreamAllNode(config) {
+        
+                RED.nodes.createNode(this, config);
+                var node = this;
+        
+                node.category = config.category;
+                node.room = config.room;
+        
+                node.miniserver = RED.nodes.getNode(config.miniserver);
+        
+                if (node.miniserver) {
+        
+                    node.miniserver.registerStreamAllNode(node);
+        
+                    this.on('close', function (done) {
+        
+                        if (node.miniserver) {
+                            node.miniserver.deregisterStreamAllNode(node);
+                        }
+        
+                        done();
+                    });
+                }
+        
+            }    
 };
