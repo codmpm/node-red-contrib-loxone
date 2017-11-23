@@ -620,7 +620,10 @@
     payload: "8.3.3.21",
     topic: "dev/cfg/version",
     code: 200
-}</pre>
+}</pre><br>
+        If the answer for the webservice call has more than one value, all these values will be returned as an object
+        in <code>msg.payload</code>
+
     </p>
 
 
@@ -945,7 +948,7 @@
 
 <script type="text/x-red" data-help-name="loxone-stream-all">
     <p>
-        This node will stream all events from the Loxone Server<br>
+        This node will stream <b>ALL</b> events from the Loxone Server
     </p>
 </script>
 
@@ -962,6 +965,15 @@
     <div class="form-row">
         <label for="node-input-name"><i class="icon-tag"></i> Name</label>
         <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+
+    <div class="form-tips">
+        <b>Warning:</b> For EVERY state on EVERY control there will be a message on occurance.
+        See <code>msg.state</code> to know which state triggered the event.<br>
+        On reconnect, including full-deploy, every state gets send. So you will get a message
+        for every state present in the control for your selected room/category.<br>
+        <br>
+        <b>PLEASE USE THIS NODE WITH GREAT CAUTION!</b>
     </div>
 
     <div class="form-row">

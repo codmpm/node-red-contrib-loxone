@@ -126,12 +126,13 @@ module.exports = function (RED) {
         node._webserviceNodeQueue = []; //only webservice nodes which are waiting for a return will be here
 
         //do nothing if miniserver connection is not active
+        /*
         if (config.active !== true) {
             node.log('connection to ' + config.host + ':' + config.port + ' disabled');
 
             node.setConnectionStatusMsg("grey", "connection disabled", "dot");
             return;
-        }
+        }*/
 
         var text_logger_limit = 100;
 
@@ -202,10 +203,6 @@ module.exports = function (RED) {
 
         client.on('message_text', function (message) {
 
-            var data = {
-                type: message.type
-            };
-
             switch (message.type) {
                 case 'json':
                     data.json = _limitString(JSON.stringify(message.json), text_logger_limit);
@@ -225,6 +222,19 @@ module.exports = function (RED) {
                                 'topic': message.control,
                                 'code': parseInt(message.code)
                             };
+
+                            //and parse all values to msg.data
+                            if (message.hasOwnProperty('data') && message.data.hasOwnProperty('LL')) {
+                                var additionalData = JSON.parse(JSON.stringify(message.data.LL));
+
+                                delete additionalData.Code;
+                                delete additionalData.control;
+
+                                if (Object.keys(additionalData).length) {
+                                    msg.data = additionalData;
+                                }
+
+                            }
 
                             //send the data out of the requesting node
                             wsNode.send(msg);
@@ -294,7 +304,7 @@ module.exports = function (RED) {
             if (node.connected) {
                 client.once('close', function () {
 
-                    console.log('We are here!');
+                    //console.log('We are here!');
                     done();
                 });
                 client.abort();
@@ -443,6 +453,7 @@ module.exports = function (RED) {
 
         //evaluate payload
         var payload;
+
         try {
             payload = JSON.parse(event);
         }
@@ -457,7 +468,10 @@ module.exports = function (RED) {
             room: this.structureData.rooms[controlStructure.room].name || null,
             category: this.structureData.cats[controlStructure.cat].name || null,
             details: controlStructure.details || null,
-            type: controlStructure.type || null
+            type: controlStructure.type || null,
+            isFavorite: controlStructure.isFavorite || null,
+            isSecured: controlStructure.isSecured || null,
+            uuid: uuid || null
         };
 
     };
@@ -477,12 +491,13 @@ module.exports = function (RED) {
                 }
             }
 
+            //publish event to stream-all node
             for (i = 0; i < this._streamAllNodes.length; i++) {
                 curNode = this._streamAllNodes[i];
                 try {
                     curNode.send(this.buildMsgObject(event, uuid, controlStructure));
                 } catch (error) {
-                    
+                    //TODO: error handling
                 }
             }
 
@@ -737,28 +752,28 @@ module.exports = function (RED) {
     RED.nodes.registerType('loxone-stream-all', LoxoneStreamAllNode);
 
     function LoxoneStreamAllNode(config) {
-        
-                RED.nodes.createNode(this, config);
-                var node = this;
-        
-                node.category = config.category;
-                node.room = config.room;
-        
-                node.miniserver = RED.nodes.getNode(config.miniserver);
-        
+
+        RED.nodes.createNode(this, config);
+        var node = this;
+
+        node.category = config.category;
+        node.room = config.room;
+
+        node.miniserver = RED.nodes.getNode(config.miniserver);
+
+        if (node.miniserver) {
+
+            node.miniserver.registerStreamAllNode(node);
+
+            this.on('close', function (done) {
+
                 if (node.miniserver) {
-        
-                    node.miniserver.registerStreamAllNode(node);
-        
-                    this.on('close', function (done) {
-        
-                        if (node.miniserver) {
-                            node.miniserver.deregisterStreamAllNode(node);
-                        }
-        
-                        done();
-                    });
+                    node.miniserver.deregisterStreamAllNode(node);
                 }
-        
-            }    
+
+                done();
+            });
+        }
+
+    }
 };

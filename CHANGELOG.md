@@ -1,3 +1,8 @@
+### 0.8.0
+* added stream-all node, thanks to @JoDehli
+* added uuid, isFavorite, isSecured to all messages, except webservice calls as this info is not there
+* added `msg.data` on webservice calls to get all return values (e.g. if you query "all")
+
 ### 0.7.0
 * added stream-in node
 * removed keepalive log message

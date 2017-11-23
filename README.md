@@ -40,6 +40,7 @@ Please use URI's in form of `jdev/sps/io/foo` (no leading `/`), simply replace `
 value will be in `msg.payload`.
 * **Stream-In**: Receive all (!) occuring events from a selected room and/or category. Could be handy to put every temperature (e.g.) into 
 a database or something - see the node for more info.
+* **Stream-All**: Receive EVERY occuring event. __USE THIS WITH CAUTION!!__
 * **Online**: Emit's `true`/`false` for the state of the connection to the selected miniserver. Be careful as every failed 
 connection attempt sends a `false` over and over again till a connection could be established.
 * **Keepalive**: outputs the current time (in ms) from the keepalive request done by the underlying library (node-lox-ws-api) 
@@ -85,11 +86,12 @@ The flow itself could be found here: http://flows.nodered.org/flow/0b3c81b336102
 ---
 
 ![image of node-red flow for webservice](https://github.com/codmpm/node-red-contrib-loxone/blob/master/node-red-contrib-loxone-webservice.png?raw=true)
-The webservice node, added in version `0.1.0`, allows you to directly call webservice URI's through the already 
-established websocket connection.
+The webservice node allows you to directly call webservice URI's through the already established websocket connection.
 
-Beginning with version `0.4.0` you can choose to automaticly append the incoming `msg.payload` to the set URI. 
+You can choose to automaticly append the incoming `msg.payload` to the set URI. 
 This is handy to add dynamic content to the webservice call, for example `DownOn` or `DownOff`.
+As of version `0.8.0` the returned msg-object will also hold `msg.data` where all data given by 
+the call with be present. For example if you request `jdev/sps/io/<element>/All`...
 
 As the `UpDownDigital` (etc.) virtual input has no state where the control-in node can listen to, I've switched it as 
 an example via the webservice-node. See a short video here: https://cloud.codm.de/nextcloud/index.php/s/IttSURIGl8OkUBf
