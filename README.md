@@ -61,7 +61,10 @@ the selected control. For example:
         details: {
             format: "%.1f°"
         },
-        type: "InfoOnlyAnalog"
+        type: "InfoOnlyAnalog",
+        uuid: 10965a26-0124-4b65-ffff403fb0c34b9e,
+        isFavorite: 0, 
+        isSecured: 0
     }
 
 In general you will find the arrived data in `msg.payload`, but have a look at the complete `msg`-object of each node.
@@ -91,7 +94,7 @@ The webservice node allows you to directly call webservice URI's through the alr
 You can choose to automaticly append the incoming `msg.payload` to the set URI. 
 This is handy to add dynamic content to the webservice call, for example `DownOn` or `DownOff`.
 As of version `0.8.0` the returned msg-object will also hold `msg.data` where all data given by 
-the call with be present. For example if you request `jdev/sps/io/<element>/All`...
+the call will be present. For example if you request `jdev/sps/io/<element>/All`...
 
 As the `UpDownDigital` (etc.) virtual input has no state where the control-in node can listen to, I've switched it as 
 an example via the webservice-node. See a short video here: https://cloud.codm.de/nextcloud/index.php/s/IttSURIGl8OkUBf
