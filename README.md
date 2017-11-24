@@ -62,7 +62,7 @@ the selected control. For example:
             format: "%.1f°"
         },
         type: "InfoOnlyAnalog",
-        uuid: 10965a26-0124-4b65-ffff403fb0c34b9e,
+        uuid: "10965a26-0124-4b65-ffff403fb0c34b9e",
         isFavorite: 0, 
         isSecured: 0
     }
