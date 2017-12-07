@@ -236,6 +236,10 @@ module.exports = function (RED) {
 
                             }
 
+                            //add miniserver info
+                            msg.msInfo = node.structureData.msInfo;
+                            msg.lastModified = node.structureData.lastModified;
+
                             //send the data out of the requesting node
                             wsNode.send(msg);
 
@@ -267,7 +271,9 @@ module.exports = function (RED) {
                     if (keepaliveNode) {
                         keepaliveNode.send({
                             topic: 'keepalive',
-                            payload: time
+                            payload: time,
+                            msInfo: node.structureData.msInfo,
+                            lastModified: node.structureData.lastModified
                         });
                     }
                 }
@@ -471,7 +477,9 @@ module.exports = function (RED) {
             type: controlStructure.type || null,
             isFavorite: controlStructure.isFavorite || null,
             isSecured: controlStructure.isSecured || null,
-            uuid: uuid || null
+            uuid: uuid || null,
+            msInfo: this.structureData.msInfo,
+            lastModified: this.structureData.lastModified
         };
 
     };
@@ -526,9 +534,11 @@ module.exports = function (RED) {
 
     function prepareStructure(data) {
         var structure = {
-            rooms: data.rooms,
-            cats: data.cats,
-            controls: {}
+            rooms: data.rooms || {},
+            cats: data.cats || {},
+            controls: {},
+            msInfo: data.msInfo || {},
+            lastModified: data.lastModified
         };
 
         for (var uuid in data.controls) {

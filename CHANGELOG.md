@@ -1,3 +1,6 @@
+### 0.9.0
+* added `msInfo` and `lastModified` to `msg`-object
+
 ### 0.8.0
 * added stream-all node, thanks to @JoDehli
 * added uuid, isFavorite, isSecured to all messages, except webservice calls as this info is not there
