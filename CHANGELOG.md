@@ -1,3 +1,6 @@
+### 0.9.1
+* parsing of substates (intelligent room controller > temperatures) fixed
+
 ### 0.9.0
 * added `msInfo` and `lastModified` to `msg`-object
 

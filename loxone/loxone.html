@@ -157,10 +157,21 @@
 
             for (var statename in control.states) {
                 if (control.states.hasOwnProperty(statename)) {
-                    $stateSelect.append(
-                        '<option value="' + control.states[statename] + '">' +
-                        statename +
-                        '</option>');
+
+                    var states = control.states[statename];
+
+                    var hasSubstates = true;
+                    if(typeof states === 'string') {
+                        hasSubstates = false;
+                        states = [states];
+                    }
+
+                    for(var i = 0; i < states.length; i++) {
+                        $stateSelect.append(
+                            '<option value="' + states[i]+ '">' +
+                            statename + (hasSubstates ? ':' + i : '') +
+                            '</option>');
+                    }
                 }
             }
 

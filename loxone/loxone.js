@@ -124,6 +124,7 @@ module.exports = function (RED) {
         node._streamAllNodes = [];
         node._webserviceNodes = [];
         node._webserviceNodeQueue = []; //only webservice nodes which are waiting for a return will be here
+        node._otherEvents = [];
 
         //do nothing if miniserver connection is not active
         /*
@@ -431,9 +432,11 @@ module.exports = function (RED) {
                 this.structureData.controls[wantedControlUuid].hasOwnProperty('states')
             ) {
                 for (var curState in  this.structureData.controls[wantedControlUuid].states) {
+
                     if (
                         this.structureData.controls[wantedControlUuid].states.hasOwnProperty(curState) &&
-                        this.structureData.controls[wantedControlUuid].states[curState] === uuid
+                        (this.structureData.controls[wantedControlUuid].states[curState].indexOf(uuid) > -1 ||
+                        this.structureData.controls[wantedControlUuid].states[curState] === uuid)
                     ) {
                         return this.structureData.controls[wantedControlUuid];
                     }
@@ -451,8 +454,13 @@ module.exports = function (RED) {
         for (stateName in controlStructure.states) {
             if (
                 controlStructure.states.hasOwnProperty(stateName) &&
-                controlStructure.states[stateName] === uuid
+                (controlStructure.states[stateName] === uuid || controlStructure.states[stateName].indexOf(uuid) > -1)
             ) {
+
+                if(typeof controlStructure.states[stateName] !== 'string' && controlStructure.states[stateName].indexOf(uuid) > -1){
+                    stateName += ':' + controlStructure.states[stateName].indexOf(uuid);
+                }
+
                 break;
             }
         }
