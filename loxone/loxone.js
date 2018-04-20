@@ -436,7 +436,7 @@ module.exports = function (RED) {
                     if (
                         this.structureData.controls[wantedControlUuid].states.hasOwnProperty(curState) &&
                         (this.structureData.controls[wantedControlUuid].states[curState].indexOf(uuid) > -1 ||
-                        this.structureData.controls[wantedControlUuid].states[curState] === uuid)
+                            this.structureData.controls[wantedControlUuid].states[curState] === uuid)
                     ) {
                         return this.structureData.controls[wantedControlUuid];
                     }
@@ -457,7 +457,7 @@ module.exports = function (RED) {
                 (controlStructure.states[stateName] === uuid || controlStructure.states[stateName].indexOf(uuid) > -1)
             ) {
 
-                if(typeof controlStructure.states[stateName] !== 'string' && controlStructure.states[stateName].indexOf(uuid) > -1){
+                if (typeof controlStructure.states[stateName] !== 'string' && controlStructure.states[stateName].indexOf(uuid) > -1) {
                     stateName += ':' + controlStructure.states[stateName].indexOf(uuid);
                 }
 
@@ -475,12 +475,22 @@ module.exports = function (RED) {
             payload = event;
         }
 
+        var room = null;
+        if (controlStructure.room && this.structureData.rooms[controlStructure.room].name) {
+            room = this.structureData.rooms[controlStructure.room].name;
+        }
+
+        var category = null;
+        if (controlStructure.cat && this.structureData.cats[controlStructure.cat].name) {
+            room = this.structureData.cats[controlStructure.cat].name;
+        }
+
         return {
             payload: payload,
             topic: controlStructure.name || null,
             state: stateName,
-            room: this.structureData.rooms[controlStructure.room].name || null,
-            category: this.structureData.cats[controlStructure.cat].name || null,
+            room: room,
+            category: category,
             details: controlStructure.details || null,
             type: controlStructure.type || null,
             isFavorite: controlStructure.isFavorite || null,
