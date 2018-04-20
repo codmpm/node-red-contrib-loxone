@@ -475,11 +475,13 @@ module.exports = function (RED) {
             payload = event;
         }
 
+        //check if control has a room
         var room = null;
         if (controlStructure.room && this.structureData.rooms[controlStructure.room].name) {
             room = this.structureData.rooms[controlStructure.room].name;
         }
 
+        //check if control has a category
         var category = null;
         if (controlStructure.cat && this.structureData.cats[controlStructure.cat].name) {
             room = this.structureData.cats[controlStructure.cat].name;
