@@ -1,3 +1,7 @@
+### 0.10.0
+* fixed crash on empty room or empty category (unused)
+* adapted colors and logo to match new loxone style
+
 ### 0.9.1
 * parsing of substates (intelligent room controller > temperatures) fixed
 
