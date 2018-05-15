@@ -1,3 +1,6 @@
+### 0.10.1
+* fixed room is displayed in category introduced in `0.10.0`, thanks to @Jofagi 
+
 ### 0.10.0
 * fixed crash on empty room or empty category (unused)
 * adapted colors and logo to match new loxone style
