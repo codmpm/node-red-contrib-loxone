@@ -484,7 +484,7 @@ module.exports = function (RED) {
         //check if control has a category
         var category = null;
         if (controlStructure.cat && this.structureData.cats[controlStructure.cat].name) {
-            room = this.structureData.cats[controlStructure.cat].name;
+            category = this.structureData.cats[controlStructure.cat].name;
         }
 
         return {
