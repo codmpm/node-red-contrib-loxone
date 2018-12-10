@@ -1,3 +1,6 @@
+### 0.10.2
+* updated `node-lox-ws-api` to `0.4.4` for nodejs 10.x compatibility. Thanks @alladdin 
+
 ### 0.10.1
 * fixed category is displayed in room introduced in `0.10.0`, thanks to @Jofagi 
 
