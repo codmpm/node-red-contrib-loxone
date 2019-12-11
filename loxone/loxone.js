@@ -498,6 +498,7 @@ module.exports = function (RED) {
             isFavorite: controlStructure.isFavorite || null,
             isSecured: controlStructure.isSecured || null,
             uuid: uuid || null,
+            uuidAction: controlStructure.uuidAction || null,
             msInfo: this.structureData.msInfo,
             lastModified: this.structureData.lastModified
         };
