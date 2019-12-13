@@ -14,8 +14,8 @@ module.exports = function (RED) {
             return res.json("");
         }
 
-        var configNode = RED.nodes.getNode(req.query.id);
-        var result = {
+        let configNode = RED.nodes.getNode(req.query.id);
+        let result = {
             state: 'error',
             msg: 'miniserver not connected',
             structure: {}
@@ -40,16 +40,16 @@ module.exports = function (RED) {
 
     RED.httpAdmin.get('/loxone-miniserver/struct-changed', function (req, res) {
 
-        var result = {
+        let result = {
             state: 'error',
             msg: 'miniserver not connected',
             structure: {}
         };
 
-        var username = req.query.username;
-        var password = req.query.password;
+        let username = req.query.username;
+        let password = req.query.password;
 
-        var configNode = RED.nodes.getNode(req.query.id);
+        let configNode = RED.nodes.getNode(req.query.id);
 
         if (configNode) {
             if (!username) {
@@ -77,7 +77,7 @@ module.exports = function (RED) {
                     return;
                 }
 
-                var data = '';
+                let data = '';
                 http_res.on('data', function (chunk) {
                     data += chunk;
                 });
@@ -112,7 +112,7 @@ module.exports = function (RED) {
 
         RED.nodes.createNode(this, config);
 
-        var node = this;
+        let node = this;
         node.connected = false;
         node.authenticated = false;
         node.connection = null;
@@ -126,6 +126,7 @@ module.exports = function (RED) {
         node._webserviceNodeQueue = []; //only webservice nodes which are waiting for a return will be here
         node._otherEvents = [];
 
+        // TODO
         //do nothing if miniserver connection is not active
         /*
         if (config.active !== true) {
@@ -135,14 +136,14 @@ module.exports = function (RED) {
             return;
         }*/
 
-        var text_logger_limit = 100;
+        let text_logger_limit = 100;
 
         node.encMethod = 'Token-Enc';
         if (encMethods.hasOwnProperty(config.enctype)) {
             node.encMethod = encMethods[config.enctype];
         }
 
-        var client = new node_lox_ws_api(
+        let client = new node_lox_ws_api(
             config.host + ':' + config.port,
             node.credentials.username,
             node.credentials.password,
@@ -154,7 +155,6 @@ module.exports = function (RED) {
 
         client.on('connect', function () {
             node.log('Miniserver connected (' + config.host + ':' + config.port + ') using ' + node.encMethod);
-            node.connected = true;
         });
 
         client.on('authorized', function () {
@@ -162,22 +162,29 @@ module.exports = function (RED) {
             node.authenticated = true;
             node.connection = client;
 
+            node.connected = true;
             node.setConnectionStatusMsg("green", "connected", "dot");
             sendOnlineNodeMsg(true, config.id);
+
         });
 
-        client.on('connect_failed', function () {
-            node.error('Miniserver connect failed');
+        client.on('get_structure_file', function (data) {
+            node.log("got structure file " + data.lastModified);
+            node.structureData = prepareStructure(data);
+        });
+
+        client.on('connect_failed', function (error, reason) {
+            node.error('Miniserver connect failed: ' + reason, JSON.stringify(error));
             node.setConnectionStatusMsg("red", "connection failed", "ring");
         });
 
-        client.on('connection_error', function (error) {
-            node.error('Miniserver connection error: ' + error);
+        client.on('connection_error', function (error, reason) {
+            node.error('Miniserver connection error: ' + reason, JSON.stringify(error));
             node.setConnectionStatusMsg("red", "connection error", "ring");
         });
 
-        client.on('close', function () {
-            node.log("connection closed");
+        client.on('close', function (info, reason) {
+            node.log("connection closed: " + reason, info);
             node.connected = false;
             node.authenticated = false;
             node.connection = null;
@@ -212,13 +219,13 @@ module.exports = function (RED) {
                     break;
                 case 'control':
 
-                    for (var i in node._webserviceNodeQueue) {
+                    for (let i in node._webserviceNodeQueue) {
 
-                        var wsNode = node._webserviceNodeQueue[i];
+                        let wsNode = node._webserviceNodeQueue[i];
 
                         if (wsNode.uri === 'j' + message.control) {
 
-                            var msg = {
+                            let msg = {
                                 'payload': message.value,
                                 'topic': message.control,
                                 'code': parseInt(message.code)
@@ -226,7 +233,7 @@ module.exports = function (RED) {
 
                             //and parse all values to msg.data
                             if (message.hasOwnProperty('data') && message.data.hasOwnProperty('LL')) {
-                                var additionalData = JSON.parse(JSON.stringify(message.data.LL));
+                                let additionalData = JSON.parse(JSON.stringify(message.data.LL));
 
                                 delete additionalData.Code;
                                 delete additionalData.control;
@@ -238,8 +245,15 @@ module.exports = function (RED) {
                             }
 
                             //add miniserver info
-                            msg.msInfo = node.structureData.msInfo;
-                            msg.lastModified = node.structureData.lastModified;
+                            if(node.structureData) {
+                                msg.msInfo = node.structureData.msInfo;
+                                msg.lastModified = node.structureData.lastModified;
+                            } else {
+                                msg.msInfo = null;
+                                msg.lastModified = null;
+
+                                node.log("structure data not ready yet, webservice request processed but without msInfo and lastModified");
+                            }
 
                             //send the data out of the requesting node
                             wsNode.send(msg);
@@ -268,7 +282,7 @@ module.exports = function (RED) {
                     nodeData.hasOwnProperty('miniserver') &&
                     nodeData.miniserver === node.id) {
 
-                    var keepaliveNode = RED.nodes.getNode(nodeData.id);
+                    let keepaliveNode = RED.nodes.getNode(nodeData.id);
                     if (keepaliveNode) {
                         keepaliveNode.send({
                             topic: 'keepalive',
@@ -295,11 +309,6 @@ module.exports = function (RED) {
             //node.log('received text messages:' + messages.length);
         });
 
-        client.on('get_structure_file', function (data) {
-            node.log("got structure file " + data.lastModified);
-            node.structureData = prepareStructure(data);
-        });
-
         client.on('update_event_value', _updateEvent);
         client.on('update_event_text', _updateEvent);
         client.on('update_event_daytimer', _updateEvent);
@@ -310,8 +319,6 @@ module.exports = function (RED) {
             //on (full-)deploys close event shutdown the client
             if (node.connected) {
                 client.once('close', function () {
-
-                    //console.log('We are here!');
                     done();
                 });
                 client.abort();
@@ -408,7 +415,7 @@ module.exports = function (RED) {
 
     LoxoneMiniserver.prototype.setConnectionStatusMsg = function (color, text, shape) {
         shape = shape || 'dot';
-        var newState = function (item) {
+        let newState = function (item) {
             item.status({
                 fill: color,
                 shape: shape,
@@ -426,12 +433,12 @@ module.exports = function (RED) {
     LoxoneMiniserver.prototype.findControlByState = function (uuid) {
 
         //search in all controls for given state uuid to find the corresponding control
-        for (var wantedControlUuid in this.structureData.controls) {
+        for (let wantedControlUuid in this.structureData.controls) {
             if (
                 this.structureData.controls.hasOwnProperty(wantedControlUuid) &&
                 this.structureData.controls[wantedControlUuid].hasOwnProperty('states')
             ) {
-                for (var curState in  this.structureData.controls[wantedControlUuid].states) {
+                for (let curState in this.structureData.controls[wantedControlUuid].states) {
 
                     if (
                         this.structureData.controls[wantedControlUuid].states.hasOwnProperty(curState) &&
@@ -450,7 +457,7 @@ module.exports = function (RED) {
     LoxoneMiniserver.prototype.buildMsgObject = function (event, uuid, controlStructure) {
 
         //get state name
-        var stateName;
+        let stateName;
         for (stateName in controlStructure.states) {
             if (
                 controlStructure.states.hasOwnProperty(stateName) &&
@@ -466,23 +473,22 @@ module.exports = function (RED) {
         }
 
         //evaluate payload
-        var payload;
+        let payload;
 
         try {
             payload = JSON.parse(event);
-        }
-        catch (err) {
+        } catch (err) {
             payload = event;
         }
 
         //check if control has a room
-        var room = null;
+        let room = null;
         if (controlStructure.room && this.structureData.rooms[controlStructure.room].name) {
             room = this.structureData.rooms[controlStructure.room].name;
         }
 
         //check if control has a category
-        var category = null;
+        let category = null;
         if (controlStructure.cat && this.structureData.cats[controlStructure.cat].name) {
             category = this.structureData.cats[controlStructure.cat].name;
         }
@@ -507,8 +513,8 @@ module.exports = function (RED) {
 
     LoxoneMiniserver.prototype.handleEvent = function (uuid, event) {
 
-        var i, curNode, curRoom, curCategory;
-        var controlStructure = this.findControlByState(uuid);
+        let i, curNode, curRoom, curCategory;
+        let controlStructure = this.findControlByState(uuid);
 
         //do we have a control for this uuid? could also be weather or global
         if (controlStructure) {
@@ -554,7 +560,7 @@ module.exports = function (RED) {
     };
 
     function prepareStructure(data) {
-        var structure = {
+        let structure = {
             rooms: data.rooms || {},
             cats: data.cats || {},
             controls: {},
@@ -562,7 +568,7 @@ module.exports = function (RED) {
             lastModified: data.lastModified
         };
 
-        for (var uuid in data.controls) {
+        for (let uuid in data.controls) {
             if (!data.controls.hasOwnProperty(uuid)) {
                 continue;
             }
@@ -570,7 +576,7 @@ module.exports = function (RED) {
             structure.controls[uuid] = data.controls[uuid];
 
             if (data.controls[uuid].hasOwnProperty('subControls')) {
-                for (var sub_uuid in data.controls[uuid].subControls) {
+                for (let sub_uuid in data.controls[uuid].subControls) {
                     if (!data.controls[uuid].subControls.hasOwnProperty(sub_uuid)) {
                         continue;
                     }
@@ -584,7 +590,7 @@ module.exports = function (RED) {
         }
 
         return structure;
-    };
+    }
 
     function sendOnlineNodeMsg(online, configId) {
 
@@ -596,7 +602,7 @@ module.exports = function (RED) {
                 theNode.hasOwnProperty('miniserver') &&
                 theNode.miniserver === configId) {
 
-                var node = RED.nodes.getNode(theNode.id);
+                let node = RED.nodes.getNode(theNode.id);
 
                 if (node) {
                     /*
@@ -621,7 +627,7 @@ module.exports = function (RED) {
     function LoxoneControlInNode(config) {
 
         RED.nodes.createNode(this, config);
-        var node = this;
+        let node = this;
 
         node.state = config.state;
         node.control = config.control;
@@ -649,7 +655,7 @@ module.exports = function (RED) {
     function LoxoneControlOutNode(config) {
 
         RED.nodes.createNode(this, config);
-        var node = this;
+        let node = this;
 
         node.control = config.control;
         node.miniserver = RED.nodes.getNode(config.miniserver);
@@ -661,6 +667,8 @@ module.exports = function (RED) {
             this.on('input', function (msg) {
                 if (node.miniserver.connected && node.miniserver.connection) {
                     node.miniserver.connection.send_control_command(node.control, msg.payload);
+                } else {
+                    node.log(node.id + ' was triggered but miniserver is not connected.');
                 }
             });
 
@@ -679,10 +687,9 @@ module.exports = function (RED) {
 
     function LoxoneWebServiceNode(config) {
         RED.nodes.createNode(this, config);
-        var node = this;
+        let node = this;
 
         node.miniserver = RED.nodes.getNode(config.miniserver);
-
 
         if (node.miniserver) {
 
@@ -697,8 +704,7 @@ module.exports = function (RED) {
 
             this.on('input', function (msg) {
 
-                node.status({});
-                var wantedURI = msg.uri || config.uri;
+                let wantedURI = msg.uri || config.uri;
 
                 if (!wantedURI.length) {
                     node.status({
@@ -726,12 +732,19 @@ module.exports = function (RED) {
                 if (node.miniserver.connected && node.miniserver.connection) {
                     node.miniserver.addWebserviceNodeToQueue(node);
                     node.miniserver.connection.send_command(node.uri);
+                } else {
+                    node.status({
+                        fill: 'red',
+                        shape: 'dot',
+                        text: 'not connected'
+                    });
+                    node.log(node.id + " tried to call " + wantedURI + " but miniserver is not connected.");
+                    return null;
                 }
 
             });
 
         }
-
 
     }
 
@@ -756,7 +769,7 @@ module.exports = function (RED) {
     function LoxoneStreamInNode(config) {
 
         RED.nodes.createNode(this, config);
-        var node = this;
+        let node = this;
 
         node.category = config.category;
         node.room = config.room;
@@ -785,7 +798,7 @@ module.exports = function (RED) {
     function LoxoneStreamAllNode(config) {
 
         RED.nodes.createNode(this, config);
-        var node = this;
+        let node = this;
 
         node.category = config.category;
         node.room = config.room;
