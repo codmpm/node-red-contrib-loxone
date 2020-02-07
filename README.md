@@ -1,6 +1,7 @@
 # node-red-contrib-loxone
 
-> **Beginning with version 0.6.0 Loxone 9's new Token-Based-Auth is fully supported through node-lox-ws-api!**  
+> **As of verison `0.10.4` please make sure, that your system has the `git` command, as the needed library are currently 
+>pulled from github. Otherwise you will get an `undefined ls-remote`-Error.**  
 
 > **Thank you** everyone, the miniserver is funded: https://www.gofundme.com/miniserver-fur-nodered-entwicklung
 > The fundraiser is **still open**, if you want to support my work on this node.
