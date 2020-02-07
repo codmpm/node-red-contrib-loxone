@@ -143,6 +143,12 @@ module.exports = function (RED) {
             node.encMethod = encMethods[config.enctype];
         }
 
+        if (!node.credentials.username || !node.credentials.password) {
+            node.error("missing credentials for " + config.host + ':' + config.port);
+            return;
+
+        }
+
         let client = new node_lox_ws_api(
             config.host + ':' + config.port,
             node.credentials.username,
@@ -152,6 +158,7 @@ module.exports = function (RED) {
         );
 
         client.connect();
+
 
         client.on('connect', function () {
             node.log('Miniserver connected (' + config.host + ':' + config.port + ') using ' + node.encMethod);
@@ -245,7 +252,7 @@ module.exports = function (RED) {
                             }
 
                             //add miniserver info
-                            if(node.structureData) {
+                            if (node.structureData) {
                                 msg.msInfo = node.structureData.msInfo;
                                 msg.lastModified = node.structureData.lastModified;
                             } else {
