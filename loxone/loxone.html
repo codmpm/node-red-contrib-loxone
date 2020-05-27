@@ -2,9 +2,7 @@
 
     var msStructure = null;
 
-    function getStructureFile(callback) {
-
-        var configNodeId = $('#node-input-miniserver').val();
+    function getStructureFile(configNodeId, callback) {
         var node = RED.nodes.node(configNodeId);
 
         $('#return-msg').html('').css({});
@@ -314,11 +312,12 @@
         oneditprepare: function () {
             var node = this;
 
-            function prepareInput() {
+            function prepareInput(e) {
                 disableChangeEvents();
                 $('#node-input-miniserver').on('change', prepareInput);
 
-                getStructureFile(function (data) {
+                const $miniServerSelect = $(e.currentTarget);
+                getStructureFile($miniServerSelect.val(), function (data) {
 
                     msStructure = data.structure;
 
@@ -344,7 +343,7 @@
                     }
 
                 });
-            };
+            }
 
             prepareInput();
         },
@@ -458,11 +457,12 @@
         oneditprepare: function () {
             var node = this;
 
-            function prepareInput() {
+            function prepareInput(e) {
                 disableChangeEvents();
                 $('#node-input-miniserver').on('change', prepareInput);
 
-                getStructureFile(function (data) {
+                const $miniServerSelect = $(e.currentTarget);
+                getStructureFile($miniServerSelect.val(), function (data) {
                     msStructure = data.structure;
 
                     $('#node-input-room, #node-input-category').on('change', fillControl);
@@ -939,7 +939,8 @@
                 $('#node-input-miniserver').on('change', prepareInput);
                 $('#node-input-category, #node-input-room').removeClass('input-error');
 
-                getStructureFile(function (data) {
+                const $miniServerSelect = $(e.currentTarget);
+                getStructureFile($miniServerSelect.val(), function (data) {
                     $('#node-input-category').val(node.category);
                     $('#node-input-room').val(node.room);
 
