@@ -34,10 +34,14 @@
 
             $.getJSON(url)
                 .done(function (data) {
+                    let userMsgCss = {
+                        'color': '#ad1625',
+                        'font-weight': 'bold'
+                    };
 
                     if (data.state == 'ok') {
 
-                        var userMsgCss = {
+                        userMsgCss = {
                             'color': '#49db3c'
                         };
 

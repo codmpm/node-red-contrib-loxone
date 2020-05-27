@@ -20,6 +20,12 @@ module.exports = function (RED) {
             structure: {}
         };
 
+        if (!configNode) {
+            result.msg = 'Could not get config node!'
+            res.json(result);
+            return;
+        }
+
         if (configNode.active !== true) {
             result.msg = 'connection disabled'
         }
@@ -32,7 +38,7 @@ module.exports = function (RED) {
             };
         }
 
-        res.json(result)
+        res.json(result);
     });
 
     RED.httpAdmin.get('/loxone-miniserver/struct-changed', function (req, res) {
