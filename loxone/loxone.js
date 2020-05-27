@@ -208,16 +208,15 @@ module.exports = function (RED) {
                     break;
                 case 'control':
                     for (let i in node._webserviceNodeQueue) {
-
-                        let wsNode = node._webserviceNodeQueue[i];
-
-                        if (wsNode.uri === 'j' + message.control) {
-
-                            let msg = {
+                        const wsNode = node._webserviceNodeQueue[i];
+                        const handler = wsNode.handler;
+                        const nodeMsg = wsNode.msg;
+                        if (handler.uri === 'j' + message.control) {
+                            let msg = Object.assign(nodeMsg, {
                                 'payload': message.value,
                                 'topic': message.control,
                                 'code': parseInt(message.code)
-                            };
+                            });
 
                             //and parse all values to msg.data
                             if (message.hasOwnProperty('data') && message.data.hasOwnProperty('LL')) {
@@ -242,10 +241,10 @@ module.exports = function (RED) {
                             }
 
                             //send the data out of the requesting node
-                            wsNode.send(msg);
+                            handler.send(msg);
 
                             //unregister node from queue
-                            node.removeWebserviceNodeFromQueue(wsNode);
+                            node.removeWebserviceNodeFromQueue(handler);
                             break;
                         }
                     }
@@ -335,9 +334,11 @@ module.exports = function (RED) {
         this._streamAllNodes.push(handler);
     };
 
-
-    LoxoneMiniserver.prototype.addWebserviceNodeToQueue = function (handler) {
-        this._webserviceNodeQueue.push(handler);
+    LoxoneMiniserver.prototype.addWebserviceNodeToQueue = function (handler, msg) {
+        this._webserviceNodeQueue.push({
+            'handler': handler,
+            'msg': msg
+        });
     };
 
     LoxoneMiniserver.prototype.deregisterInputNode = function (handler) {
@@ -382,7 +383,7 @@ module.exports = function (RED) {
 
     LoxoneMiniserver.prototype.removeWebserviceNodeFromQueue = function (handler) {
         this._webserviceNodeQueue.forEach(function (node, i, outputNodes) {
-            if (node === handler) {
+            if (node.handler === handler) {
                 outputNodes.splice(i, 1);
             }
         });
@@ -677,7 +678,7 @@ module.exports = function (RED) {
 
                 //add node to the queue for waiting messages and send the URI
                 if (node.miniserver.connected && node.miniserver.connection) {
-                    node.miniserver.addWebserviceNodeToQueue(node);
+                    node.miniserver.addWebserviceNodeToQueue(node, msg);
                     node.miniserver.connection.send_command(node.uri);
                 } else {
                     node.status({
