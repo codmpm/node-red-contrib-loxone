@@ -1,5 +1,4 @@
 module.exports = function (RED) {
-
     "use strict";
     const node_lox_ws_api = require("node-lox-ws-api");
     const http = require('http');
@@ -26,20 +25,17 @@ module.exports = function (RED) {
         }
 
         if (configNode && configNode.active && configNode.connected) {
-
             result = {
                 state: 'ok',
                 msg: 'got miniserver structure',
                 structure: configNode.structureData
             };
-
         }
 
         res.json(result)
     });
 
     RED.httpAdmin.get('/loxone-miniserver/struct-changed', function (req, res) {
-
         let result = {
             state: 'error',
             msg: 'miniserver not connected',
@@ -48,9 +44,7 @@ module.exports = function (RED) {
 
         let username = req.query.username;
         let password = req.query.password;
-
         let configNode = RED.nodes.getNode(req.query.id);
-
         if (configNode) {
             if (!username) {
                 username = configNode.credentials.username;
@@ -62,7 +56,6 @@ module.exports = function (RED) {
             if (configNode.active !== true) {
                 result.msg = 'connection disabled'
             }
-
         }
 
         http.get({
@@ -96,10 +89,7 @@ module.exports = function (RED) {
     });
 
     function LoxoneMiniserver(config) {
-
-
         function _updateEvent(uuid, evt) {
-            //node.log("received update event: " + JSON.stringify(evt) + ':' + uuid);
             node.handleEvent(uuid, evt);
         }
 
@@ -146,7 +136,6 @@ module.exports = function (RED) {
         if (!node.credentials.username || !node.credentials.password) {
             node.error("missing credentials for " + config.host + ':' + config.port);
             return;
-
         }
 
         let client = new node_lox_ws_api(
@@ -159,20 +148,16 @@ module.exports = function (RED) {
 
         client.connect();
 
-
         client.on('connect', function () {
             node.log('Miniserver connected (' + config.host + ':' + config.port + ') using ' + node.encMethod);
         });
 
         client.on('authorized', function () {
-            //node.log('authorized');
             node.authenticated = true;
             node.connection = client;
-
             node.connected = true;
             node.setConnectionStatusMsg("green", "connected", "dot");
             sendOnlineNodeMsg(true, config.id);
-
         });
 
         client.on('get_structure_file', function (data) {
@@ -208,16 +193,13 @@ module.exports = function (RED) {
 
             node.setConnectionStatusMsg("yellow", "connection closed", "ring");
             sendOnlineNodeMsg(false, config.id);
-
         });
-
 
         client.on('send', function (message) {
             //node.log("sent message: " + message);
         });
 
         client.on('message_text', function (message) {
-
             switch (message.type) {
                 case 'json':
                     data.json = _limitString(JSON.stringify(message.json), text_logger_limit);
@@ -225,7 +207,6 @@ module.exports = function (RED) {
 
                     break;
                 case 'control':
-
                     for (let i in node._webserviceNodeQueue) {
 
                         let wsNode = node._webserviceNodeQueue[i];
@@ -241,14 +222,12 @@ module.exports = function (RED) {
                             //and parse all values to msg.data
                             if (message.hasOwnProperty('data') && message.data.hasOwnProperty('LL')) {
                                 let additionalData = JSON.parse(JSON.stringify(message.data.LL));
-
                                 delete additionalData.Code;
                                 delete additionalData.control;
 
                                 if (Object.keys(additionalData).length) {
                                     msg.data = additionalData;
                                 }
-
                             }
 
                             //add miniserver info
@@ -276,15 +255,10 @@ module.exports = function (RED) {
                     data.text = _limitString(message.data, text_logger_limit);
                     node.log("received text message: " + data.text);
             }
-
         });
 
-
         client.on('keepalive', function (time) {
-            //node.log('keepalive (' + time + 'ms)');
-
             RED.nodes.eachNode(function (nodeData) {
-
                 if (nodeData.type === 'loxone-keepalive' &&
                     nodeData.hasOwnProperty('miniserver') &&
                     nodeData.miniserver === node.id) {
@@ -300,7 +274,6 @@ module.exports = function (RED) {
                     }
                 }
             });
-
         });
 
         client.on('message_header', function (header) {
@@ -321,7 +294,6 @@ module.exports = function (RED) {
         client.on('update_event_daytimer', _updateEvent);
         client.on('update_event_weather', _updateEvent);
 
-
         this.on('close', function (done) {
             //on (full-)deploys close event shutdown the client
             if (node.connected) {
@@ -334,7 +306,6 @@ module.exports = function (RED) {
             }
 
         });
-
     }
 
     RED.nodes.registerType("loxone-miniserver", LoxoneMiniserver, {
@@ -343,7 +314,6 @@ module.exports = function (RED) {
             password: {type: "password"}
         }
     });
-
 
     LoxoneMiniserver.prototype.registerInputNode = function (handler) {
         this._inputNodes.push(handler);
@@ -369,7 +339,6 @@ module.exports = function (RED) {
     LoxoneMiniserver.prototype.addWebserviceNodeToQueue = function (handler) {
         this._webserviceNodeQueue.push(handler);
     };
-
 
     LoxoneMiniserver.prototype.deregisterInputNode = function (handler) {
         this._inputNodes.forEach(function (node, i, inputNodes) {
@@ -411,7 +380,6 @@ module.exports = function (RED) {
         });
     };
 
-
     LoxoneMiniserver.prototype.removeWebserviceNodeFromQueue = function (handler) {
         this._webserviceNodeQueue.forEach(function (node, i, outputNodes) {
             if (node === handler) {
@@ -438,7 +406,6 @@ module.exports = function (RED) {
     };
 
     LoxoneMiniserver.prototype.findControlByState = function (uuid) {
-
         //search in all controls for given state uuid to find the corresponding control
         for (let wantedControlUuid in this.structureData.controls) {
             if (
@@ -462,7 +429,6 @@ module.exports = function (RED) {
     };
 
     LoxoneMiniserver.prototype.buildMsgObject = function (event, uuid, controlStructure) {
-
         //get state name
         let stateName;
         for (stateName in controlStructure.states) {
@@ -515,11 +481,9 @@ module.exports = function (RED) {
             msInfo: this.structureData.msInfo,
             lastModified: this.structureData.lastModified
         };
-
     };
 
     LoxoneMiniserver.prototype.handleEvent = function (uuid, event) {
-
         let i, curNode, curRoom, curCategory;
         let controlStructure = this.findControlByState(uuid);
 
@@ -545,7 +509,6 @@ module.exports = function (RED) {
 
             //publish event to stream-in node
             for (i = 0; i < this._streamInNodes.length; i++) {
-
                 curNode = this._streamInNodes[i];
                 curRoom = (curNode.hasOwnProperty('room')) ? curNode.room : null;
                 curCategory = (curNode.hasOwnProperty('category')) ? curNode.category : null;
@@ -581,7 +544,6 @@ module.exports = function (RED) {
             }
 
             structure.controls[uuid] = data.controls[uuid];
-
             if (data.controls[uuid].hasOwnProperty('subControls')) {
                 for (let sub_uuid in data.controls[uuid].subControls) {
                     if (!data.controls[uuid].subControls.hasOwnProperty(sub_uuid)) {
@@ -600,17 +562,14 @@ module.exports = function (RED) {
     }
 
     function sendOnlineNodeMsg(online, configId) {
-
         online = online || false;
 
         RED.nodes.eachNode(function (theNode) {
-
             if (theNode.type === 'loxone-online' &&
                 theNode.hasOwnProperty('miniserver') &&
                 theNode.miniserver === configId) {
 
                 let node = RED.nodes.getNode(theNode.id);
-
                 if (node) {
                     /*
                     node.status({
@@ -624,29 +583,20 @@ module.exports = function (RED) {
                         payload: online
                     });
                 }
-
             }
-
         });
-
     }
 
     function LoxoneControlInNode(config) {
-
         RED.nodes.createNode(this, config);
         let node = this;
 
         node.state = config.state;
         node.control = config.control;
-
         node.miniserver = RED.nodes.getNode(config.miniserver);
-
         if (node.miniserver) {
-
             node.miniserver.registerInputNode(node);
-
             this.on('close', function (done) {
-
                 if (node.miniserver) {
                     node.miniserver.deregisterInputNode(node);
                 }
@@ -654,19 +604,16 @@ module.exports = function (RED) {
                 done();
             });
         }
-
     }
 
     RED.nodes.registerType("loxone-control-in", LoxoneControlInNode);
 
     function LoxoneControlOutNode(config) {
-
         RED.nodes.createNode(this, config);
         let node = this;
 
         node.control = config.control;
         node.miniserver = RED.nodes.getNode(config.miniserver);
-
         if (node.miniserver) {
 
             node.miniserver.registerOutputNode(node);
@@ -691,15 +638,12 @@ module.exports = function (RED) {
 
     RED.nodes.registerType("loxone-control-out", LoxoneControlOutNode);
 
-
     function LoxoneWebServiceNode(config) {
         RED.nodes.createNode(this, config);
         let node = this;
 
         node.miniserver = RED.nodes.getNode(config.miniserver);
-
         if (node.miniserver) {
-
             node.miniserver.registerWebserviceNode(node);
 
             this.on('close', function (done) {
@@ -710,9 +654,7 @@ module.exports = function (RED) {
             });
 
             this.on('input', function (msg) {
-
                 let wantedURI = msg.uri || config.uri;
-
                 if (!wantedURI.length) {
                     node.status({
                         fill: 'red',
@@ -733,8 +675,6 @@ module.exports = function (RED) {
 
                 node.uri = wantedURI + ((config.appendpayload === true) ? msg.payload : '');
 
-                //node.log('sending ' + node.uri);
-
                 //add node to the queue for waiting messages and send the URI
                 if (node.miniserver.connected && node.miniserver.connection) {
                     node.miniserver.addWebserviceNodeToQueue(node);
@@ -748,15 +688,11 @@ module.exports = function (RED) {
                     node.log(node.id + " tried to call " + wantedURI + " but miniserver is not connected.");
                     return null;
                 }
-
             });
-
         }
-
     }
 
     RED.nodes.registerType('loxone-webservice', LoxoneWebServiceNode);
-
 
     function LoxoneOnlineNode(config) {
         RED.nodes.createNode(this, config);
@@ -769,20 +705,15 @@ module.exports = function (RED) {
     }
 
     RED.nodes.registerType('loxone-keepalive', LoxoneKeepaliveNode);
-
-
     RED.nodes.registerType('loxone-stream-in', LoxoneStreamInNode);
 
     function LoxoneStreamInNode(config) {
-
         RED.nodes.createNode(this, config);
         let node = this;
 
         node.category = config.category;
         node.room = config.room;
-
         node.miniserver = RED.nodes.getNode(config.miniserver);
-
         if (node.miniserver) {
 
             node.miniserver.registerStreamInNode(node);
@@ -796,24 +727,18 @@ module.exports = function (RED) {
                 done();
             });
         }
-
     }
-
 
     RED.nodes.registerType('loxone-stream-all', LoxoneStreamAllNode);
 
     function LoxoneStreamAllNode(config) {
-
         RED.nodes.createNode(this, config);
         let node = this;
 
         node.category = config.category;
         node.room = config.room;
-
         node.miniserver = RED.nodes.getNode(config.miniserver);
-
         if (node.miniserver) {
-
             node.miniserver.registerStreamAllNode(node);
 
             this.on('close', function (done) {
@@ -825,6 +750,5 @@ module.exports = function (RED) {
                 done();
             });
         }
-
     }
 };
