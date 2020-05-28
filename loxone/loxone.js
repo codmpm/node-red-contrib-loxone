@@ -149,7 +149,8 @@ module.exports = function (RED) {
             node.credentials.username,
             node.credentials.password,
             true,
-            node.encMethod
+            node.encMethod,
+            config.keepalive
         );
 
         client.connect();
