@@ -560,6 +560,18 @@
             <option value="2">Hash</option>
         </select>
     </div>
+
+    <div class="form-row">
+        <label for="node-config-input-username"><i class="fa fa-clock-o"></i> Keepalive</label>
+        <select id="node-config-input-keepalive">
+        <option value="5000">jede 5 Sekunden</option>
+        <option value="15000">jede 15 Sekunden</option>
+        <option value="30000">jede 30 Sekunden</option>
+        <option value="45000">jede 45 Sekunden</option>
+        <option value="60000">jede 60 Sekunden</option>
+        </select>
+    </div>
+
     <!--
     <div class="form-row">
         <label></label>
@@ -600,7 +612,8 @@
             port: {value: 80, required: true, validate: RED.validators.number()},
             //encrypted: {value: false},
             enctype: {value: "0", required: true},
-            active: {value: true}
+            active: {value: true},
+            keepalive: {value: 30000, required: true, validate: RED.validators.number()},
         },
         credentials: {
             username: {type: "text", required: true},

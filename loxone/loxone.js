@@ -114,6 +114,7 @@ module.exports = function (RED) {
         node.connection = null;
         node.structureData = null;
         node.active = true; //config.active;
+        node._onlineNodes = [];
         node._inputNodes = [];
         node._outputNodes = [];
         node._streamInNodes = [];
@@ -149,7 +150,8 @@ module.exports = function (RED) {
             node.credentials.username,
             node.credentials.password,
             true,
-            node.encMethod
+            node.encMethod,
+            config.keepalive
         );
 
         client.connect();
@@ -320,6 +322,10 @@ module.exports = function (RED) {
         }
     });
 
+    LoxoneMiniserver.prototype.registerOnlineNode = function (handler) {
+        this._onlineNodes.push(handler);
+    };
+
     LoxoneMiniserver.prototype.registerInputNode = function (handler) {
         this._inputNodes.push(handler);
     };
@@ -344,6 +350,14 @@ module.exports = function (RED) {
         this._webserviceNodeQueue.push({
             'handler': handler,
             'msg': msg
+        });
+    };
+
+    LoxoneMiniserver.prototype.deregisterOnlineNode = function (handler) {
+        this._onlineNodes.forEach(function (node, i, onlineNodes) {
+            if (node === handler) {
+                onlineNodes.splice(i, 1);
+            }
         });
     };
 
@@ -410,6 +424,7 @@ module.exports = function (RED) {
         this._streamInNodes.forEach(newState);
         this._streamAllNodes.forEach(newState);
         this._webserviceNodes.forEach(newState);
+        this._onlineNodes.forEach(newState);
     };
 
     LoxoneMiniserver.prototype.findControlByState = function (uuid) {
@@ -703,6 +718,21 @@ module.exports = function (RED) {
 
     function LoxoneOnlineNode(config) {
         RED.nodes.createNode(this, config);
+        let node = this;
+
+        node.state = config.state;
+        node.control = config.control;
+        node.miniserver = RED.nodes.getNode(config.miniserver);
+        if (node.miniserver) {
+            node.miniserver.registerOnlineNode(node);
+
+            this.on('close', function (done) {
+                if (node.miniserver) {
+                    node.miniserver.deregisterOnlineNode(node);
+                }
+                done();
+            });
+        }
     }
 
     RED.nodes.registerType('loxone-online', LoxoneOnlineNode);
