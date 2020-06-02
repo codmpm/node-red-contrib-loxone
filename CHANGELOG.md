@@ -1,3 +1,25 @@
+### 0.10.6
+* fixed #44
+* new `node-lox-ws-api` for better reconnction handling
+* fixed missing structure file for miniserver config
+* better error messages if miniserver not reachable, also on online nodes
+* configurable miniserver keepalive in config node
+
+### 0.10.5 
+* fixed #42
+* added info that git is needed
+
+### 0.10.4
+* fixed development dependency `package.json`
+
+### 0.10.3
+* fixed #35
+* using own forked node-lox-ws-api
+* better connection information adressing #28 and hopefully #33
+* `miniserver.connected` now after authentification not after initial connection
+
+
+
 ### 0.10.2
 * updated `node-lox-ws-api` to `0.4.4` for nodejs 10.x compatibility. Thanks @alladdin 
 

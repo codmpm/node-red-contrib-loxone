@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-loxone",
-  "version": "0.10.5",
+  "version": "0.10.6",
   "description": "Connecting the Loxone Miniserver to node-red via Websocket API",
   "license": "MIT",
   "keywords": [
@@ -14,7 +14,7 @@
   },
   "author": "Patrik Mayer <patrik.mayer@codm.de> <https://www.codm.de/)",
   "dependencies": {
-    "node-lox-ws-api": "codm/node-lox-ws-api#0.4.5-bugfix"
+    "node-lox-ws-api": "github:codm/node-lox-ws-api#0.4.5-bugfix"
   },
   "repository": "codmpm/node-red-contrib-loxone"
 }

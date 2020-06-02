@@ -1,6 +1,6 @@
 # node-red-contrib-loxone
 
-> **As of verison `0.10.4` please make sure, that your system has the `git` command, as the needed library are currently 
+> **As of verison `0.10.4` please make sure, that your system has the `git` command installed, as the needed library are currently 
 >pulled from github. Otherwise you will get an `undefined ls-remote`-Error.**  
 
 > **Thank you** everyone, the miniserver is funded: https://www.gofundme.com/miniserver-fur-nodered-entwicklung
@@ -28,7 +28,7 @@ Keepalive is handled via `node-lox-ws-api` and token based authentication is use
 As I don't have an own Loxone installation, I can't do a "real world" test. Gladly have an own miniserver through the 
 mentioned crowdfunding campaign. Again, thank you all!
 
-Tested with loxone-config V9.0.9.26, node-red 0.17.5, nodeJS 6.12.0 LTS
+Tested with loxone-config V11.0.5.5, node-red 1.0.6, nodeJS 12.13.1 LTS
 
 > Help, pull requests and feedback in general are very welcome!
 
