@@ -14,7 +14,7 @@
   },
   "author": "Patrik Mayer <patrik.mayer@codm.de> <https://www.codm.de/)",
   "dependencies": {
-    "node-lox-ws-api": "codm/node-lox-ws-api"
+    "node-lox-ws-api": "codm/node-lox-ws-api#0.4.5-bugfix"
   },
   "repository": "codmpm/node-red-contrib-loxone"
 }
