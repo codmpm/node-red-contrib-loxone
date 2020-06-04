@@ -45,7 +45,7 @@ a database or something - see the node for more info.
 * **Online**: Emit's `true`/`false` for the state of the connection to the selected miniserver. Be careful as every failed 
 connection attempt sends a `false` over and over again till a connection could be established.
 * **Keepalive**: outputs the current time (in ms) from the keepalive request done by the underlying library (node-lox-ws-api) 
-every 2 minutes. See page 17 of the Loxone webservice documentation. The response time can be used to measssure connection 
+every x seconds (as configured in the connection). See page 17 of the Loxone webservice documentation. The response time can be used to measssure connection 
 quality.
 
 The information used comes from the structure file, which can be retrieved from your miniserver via `http://<miniserver>/data/LoxAPP3.json`.

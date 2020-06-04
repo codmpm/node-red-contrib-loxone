@@ -564,11 +564,11 @@
     <div class="form-row">
         <label for="node-config-input-username"><i class="fa fa-clock-o"></i> Keepalive</label>
         <select id="node-config-input-keepalive">
-        <option value="5000">jede 5 Sekunden</option>
-        <option value="15000">jede 15 Sekunden</option>
-        <option value="30000">jede 30 Sekunden</option>
-        <option value="45000">jede 45 Sekunden</option>
-        <option value="60000">jede 60 Sekunden</option>
+        <option value="5000">every 5s</option>
+        <option value="15000">every 15s</option>
+        <option value="30000">every 30s</option>
+        <option value="45000">every 45s</option>
+        <option value="60000">every 60s</option>
         </select>
     </div>
 
@@ -596,12 +596,6 @@
         <small>For more Information see <a href="https://www.loxone.com/dede/wp-content/uploads/sites/2/2016/08/0900_Communicating-with-the-Miniserver.pdf"
         target="_blank">Communicating with the Loxone Miniserver</a> page 19.</small>
     </div>
-
-
-
-
-
-
 </script>
 
 <script type="text/javascript">
@@ -811,7 +805,7 @@
 <script type="text/x-red" data-help-name="loxone-keepalive">
     <p>
         This node outputs the current time (in ms) from the keepalive request
-        done by the underlying library every 2 minutes.<br>
+        done by the underlying library every x seconds (as configured in the connection).<br>
         The time could be used as an indicator on connection quality.<br>
         <br>
         See page 17 of the <a href="https://www.loxone.com/dede/wp-content/uploads/sites/2/2016/08/loxone-communicating-with-the-miniserver.pdf" target="_blank">
