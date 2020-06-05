@@ -1,3 +1,7 @@
+### 0.10.7
+* fixed non working keepalive node, introduced in `0.10.6`
+* fixed translations in miniserver-config
+
 ### 0.10.6
 * fixed #44
 * new `node-lox-ws-api` for better reconnction handling
