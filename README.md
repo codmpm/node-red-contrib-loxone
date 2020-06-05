@@ -167,7 +167,7 @@ take care of this as it might give you unexpected results. This could be catched
 Also keep in mind, that this element sends `1/0` but expects to be fed with `On/Off/Pulse`.
 
 ### nodeJS
-I advice you to use the latest [LTS version](https://github.com/nodejs/LTS) of nodeJS - currently `6.11.5`.
+I advice you to use the latest [LTS version](https://github.com/nodejs/LTS) of nodeJS.
 
 If you realy can not update to a supported version of nodeJS, the last version of node-red-contrib-loxone running with 
 nodeJS `< 4.5` is `0.4.0` which can be installed with:
