@@ -945,7 +945,7 @@
         oneditprepare: function () {
             var node = this;
 
-            function prepareInput() {
+            function prepareInput(e) {
                 disableChangeEvents();
                 $('#node-input-miniserver').on('change', prepareInput);
                 $('#node-input-category, #node-input-room').removeClass('input-error');
