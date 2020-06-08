@@ -1,3 +1,6 @@
+### 0.10.8
+* fixed missing event parameter for stream-in
+
 ### 0.10.7
 * fixed non working keepalive node, introduced in `0.10.6`
 * fixed translations in miniserver-config
