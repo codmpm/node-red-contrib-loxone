@@ -163,14 +163,14 @@ module.exports = function (RED) {
         client.on('authorized', function () {
             node.authenticated = true;
             node.connection = client;
-            node.connected = true;
-            node.setConnectionStatusMsg("green", "connected", "dot");
-            sendOnlineNodeMsg(true, config.id);
         });
 
         client.on('get_structure_file', function (data) {
             node.log("got structure file " + data.lastModified);
             node.structureData = prepareStructure(data);
+            node.connected = true;
+            node.setConnectionStatusMsg("green", "connected", "dot");
+            sendOnlineNodeMsg(true, config.id);
         });
 
         client.on('connect_failed', function (error, reason) {
