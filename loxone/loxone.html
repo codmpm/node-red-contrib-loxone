@@ -55,18 +55,20 @@
                         $controlSelect.empty();
 
                         $roomSelect.append('<option value=""></option>');
-                        for (uuid in data.structure.rooms) {
-                            if (data.structure.rooms.hasOwnProperty(uuid)) {
-                                $roomSelect.append('<option value="' + uuid + '">' + data.structure.rooms[uuid].name + '</option>');
+                        const sortedRooms = Object.values(data.structure.rooms).sort((a, b) => a.name.localeCompare(b.name));
+                        sortedRooms.forEach((room) => {
+                            if (room.hasOwnProperty('uuid')) {
+                                $roomSelect.append('<option value="' + room.uuid + '">' + room.name + '</option>');
                             }
-                        }
+                        });
 
                         $categorySelect.append('<option value=""></option>');
-                        for (uuid in data.structure.cats) {
-                            if (data.structure.cats.hasOwnProperty(uuid)) {
-                                $categorySelect.append('<option value="' + uuid + '">' + data.structure.cats[uuid].name + '</option>');
+                        const sortedCats = Object.values(data.structure.cats).sort((a, b) => a.name.localeCompare(b.name));
+                        sortedCats.forEach((cat) => {
+                            if (cat.hasOwnProperty('uuid')) {
+                                $categorySelect.append('<option value="' + cat.uuid + '">' + cat.name + '</option>');
                             }
-                        }
+                        });
 
                         if ($controlSelect.length) {
                             $controlSelect.append('<option value=""></option>');
