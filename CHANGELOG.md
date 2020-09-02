@@ -1,3 +1,9 @@
+### 0.10.10
+* Sort the rooms and cats data, fixes #56
+
+### 0.10.9
+* `online` is emited _after_ the structure file has been parsed, not after authorisation anymore
+
 ### 0.10.8
 * fixed missing event parameter for stream-in
 
