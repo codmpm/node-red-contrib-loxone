@@ -1,3 +1,7 @@
+### 0.10.11
+* node-lox-ws-api 0.4.5-bugfix3 so you don't have to build binary dependencies of [WebSocket-Node](https://github.com/theturtle32/WebSocket-Node/blob/master/CHANGELOG.md)
+
+
 ### 0.10.10
 * Sort the rooms and cats data, fixes #56
 
