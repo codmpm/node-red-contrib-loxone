@@ -130,14 +130,14 @@ For example if you request `jdev/sps/io/<element>/All`:
 ![image node-red dashboard](https://github.com/codmpm/node-red-contrib-loxone/blob/master/node-red-contrib-loxone-dashboard.png?raw=true)
 
 Here's a small video of the controls above with the Loxone Webinterface on the left, Loxone-Config with LiveView enabled in the 
-middle and node-red with node-red-dashboard on the right: https://cloud.codm.de/nextcloud/index.php/s/hNO2hIgnGIDWGqM
+middle and node-red with node-red-dashboard on the right: https://cloud.codm.de/index.php/s/hNO2hIgnGIDWGqM
 
 --- 
 
 ![image of node-red flow for fritzbox](https://github.com/codmpm/node-red-contrib-loxone/blob/master/node-red-contrib-loxone-demo-fritz.png?raw=true)
   
 Another example: Reading the current used bandwith of a FritzBox-Router and display 
-this data in the visualisation of the Miniserver:  https://cloud.codm.de/nextcloud/index.php/s/5XoNoMLilinpU4v
+this data in the visualisation of the Miniserver:  https://cloud.codm.de/index.php/s/5XoNoMLilinpU4v
     
 The flow itself could be found here: http://flows.nodered.org/flow/0b3c81b3361027ce4064d4e934f23685    
 
@@ -150,7 +150,7 @@ You can choose to automaticly append the incoming `msg.payload` to the set URI.
 This is handy to add dynamic content to the webservice call, for example `DownOn` or `DownOff`.
 
 As the `UpDownDigital` (etc.) virtual input has no state where the control-out node can put it's data, I've switched it as 
-an example via the webservice-node. See a short video here: https://cloud.codm.de/nextcloud/index.php/s/IttSURIGl8OkUBf
+an example via the webservice-node. See a short video here: https://cloud.codm.de/index.php/s/IttSURIGl8OkUBf
 
 ### Caveats
 Only `controls` and `msInfo` are parsed, no `mediaServer`, `weatherServer`, etc. Is this enough? 
