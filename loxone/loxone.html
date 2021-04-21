@@ -69,6 +69,7 @@
                                 $categorySelect.append('<option value="' + cat.uuid + '">' + cat.name + '</option>');
                             }
                         });
+                        $categorySelect.append('<option value="do-not-use" disabled>Do not use</option>');
 
                         if ($controlSelect.length) {
                             $controlSelect.append('<option value=""></option>');
@@ -327,7 +328,10 @@
 
                     msStructure = data.structure;
 
-                    var $controlSelect = $('#node-input-control');
+                    const $controlSelect = $('#node-input-control');
+                    const $roomSelect = $('#node-input-room');
+                    const $categorySelect = $('#node-input-category');
+                    const $state = $('#node-input-state');
                     $controlSelect.on('change', fillState);
                     $('#node-input-room, #node-input-category').on('change', fillControl);
 
@@ -335,8 +339,8 @@
 
                         //select proper room and category for selected control
                         var controlFromStructure = data.structure.controls[node.control];
-                        $('#node-input-room').val(controlFromStructure.room);
-                        $('#node-input-category').val(controlFromStructure.cat);
+                        $roomSelect.val(controlFromStructure.room);
+                        $categorySelect.val(controlFromStructure.cat);
 
                         fillControl();
 
@@ -344,8 +348,35 @@
                         $controlSelect.trigger('change');
 
                         if (node.state) {
-                            $('#node-input-state').val(node.state);
+                            $state.val(node.state);
                         }
+                    } else if(node.control) {
+
+                      if ($roomSelect.find('option[value="do-not-use"]').length === 0) {
+                        $roomSelect.append('<option value="do-not-use" disabled>Do not use</option>');
+                      }
+
+                      if ($categorySelect.find('option[value="do-not-use"]').length === 0) {
+                        $categorySelect.append('<option value="do-not-use" disabled>Do not use</option>');
+                      }
+
+                      if ($state.find('option[value="unknown"]').length === 0) {
+                        $state.append('<option value="unknown" disabled>Unkown</option>');
+                      }
+
+                      if ($controlSelect.find(`option[value="${node.control}"]`).length === 0) {
+                        $controlSelect.append(`<option value="${node.control}" disabled>${node.control}</option>`);
+                      }
+
+                      $roomSelect.val('do-not-use');
+                      $categorySelect.val('do-not-use');
+                      $state.val('unknown');
+                      $controlSelect.val(node.control);
+
+                      const $dialogForm = $('#dialog-form');
+                      if($dialogForm.find('div.alert').length === 0) {
+                        $dialogForm.prepend('<div class="alert alert-danger" style="color: #856404;background-color: #fff3cd;border-color: #ffeeba;padding: .75rem 1.25rem;margin-bottom: 10px;"><span class="fa fa-exclamation" style="margin-right: 10px;"></span>It seems that your control is assigned to the "do not use" room/category. It\'s not possible to fetch data of a controls in this room/categorie, that means the state below is set to unknown. Please don\'t save this form or the control could be corrupted. </div>')
+                      }
                     }
 
                 });
