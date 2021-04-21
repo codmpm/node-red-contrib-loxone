@@ -374,7 +374,7 @@
 
                       const $dialogForm = $('#dialog-form');
                       if($dialogForm.find('div.alert').length === 0) {
-                        $dialogForm.prepend('<div class="alert alert-danger" style="color: #856404;background-color: #fff3cd;border-color: #ffeeba;padding: .75rem 1.25rem;margin-bottom: 10px;"><span class="fa fa-exclamation" style="margin-right: 10px;"></span>It seems that your control is assigned to the "do not use" room/category. It\'s not possible to fetch data of a controls in this room/categorie, that means the state below is set to unknown. Please don\'t save this form or the control could be corrupted. </div>')
+                        $dialogForm.prepend('<div class="alert alert-danger" style="color: #856404;background-color: #fff3cd;border-color: #ffeeba;padding: .75rem 1.25rem;margin-bottom: 10px;"><span class="fa fa-exclamation" style="margin-right: 10px;"></span>It seems that your control is assigned to the “do not use” room and category. It is not possible to fetch the data of this control, thus the state below is set to unknown. Please don’t save this form or the control could be corrupted.</div>')
                       }
                     }
 
