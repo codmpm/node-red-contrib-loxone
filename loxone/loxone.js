@@ -258,6 +258,18 @@ module.exports = function (RED) {
                     }
 
                     break;
+				case 'text':
+                    for (let i in node._webserviceNodeQueue) {
+                        const wsNode = node._webserviceNodeQueue[i];
+                        const handler = wsNode.handler;
+                        const nodeMsg = wsNode.msg;
+                            let msg = Object.assign(nodeMsg, {
+                                'controlNotes': message.data
+                            });
+						handler.send(msg)
+						break;
+                    }
+					
                 default:
                     data.text = _limitString(message.data, text_logger_limit);
                     node.log("received text message: " + data.text);
@@ -498,6 +510,7 @@ module.exports = function (RED) {
             type: controlStructure.type || null,
             isFavorite: controlStructure.isFavorite || null,
             isSecured: controlStructure.isSecured || null,
+			hasControlNotes: controlStructure.hasControlNotes || null,
             uuid: uuid || null,
             uuidAction: controlStructure.uuidAction || null,
             msInfo: this.structureData.msInfo,
