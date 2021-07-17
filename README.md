@@ -9,7 +9,7 @@
 ---
 
 This node connects the Loxone Miniserver to node-red. It uses [node-lox-ws-api](https://github.com/alladdin/node-lox-ws-api) 
-by Ladislav Dokulil based on Loxone's documenation for the [Websocket API](https://www.loxone.com/dede/wp-content/uploads/sites/2/2018/10/1000_Communicating-with-the-Miniserver.pdf).
+by Ladislav Dokulil based on Loxone's documenation for the [Websocket API](https://www.loxone.com/dede/wp-content/uploads/sites/2/2021/06/1201_Communicating-with-the-Miniserver.pdf).
 
 It enables you to connect the Loxone Miniserver directly to node-red and work with the data
 on occuring events. As this uses the official Websocket, you will only see controls that are 
@@ -17,7 +17,7 @@ visualized in Loxone-Config.
 
 **You will get the data from Loxone's websocket _as is_. There is and will be no abstraction layer!**
 
-So please know how to handle the data according to the [structure file](https://www.loxone.com/dede/wp-content/uploads/sites/2/2018/10/1000_Structure-File.pdf) 
+So please know how to handle the data according to the [structure file](https://www.loxone.com/dede/wp-content/uploads/sites/2/2021/06/1201_Structure-File.pdf) 
 or the [webservice documenation](https://www.loxone.com/enen/kb/web-services/).
 
 As of Loxone V9 the new token based authentification should be used. If you are still using V8 or earlier, please use `AES-256-CBC` or 
