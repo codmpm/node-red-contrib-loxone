@@ -19,5 +19,8 @@
   "dependencies": {
     "node-lox-ws-api": "github:codm/node-lox-ws-api#0.4.5-bugfix4"
   },
-  "repository": "codmpm/node-red-contrib-loxone"
+  "repository": "codmpm/node-red-contrib-loxone",
+  "engines": {
+    "node": ">=4.2.6"
+  }
 }
