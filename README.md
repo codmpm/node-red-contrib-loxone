@@ -3,9 +3,6 @@
 > **As of verison `0.10.4` please make sure, that your system has the `git` command installed, as the needed library are currently 
 >pulled from github. Otherwise you will get an `undefined ls-remote`-Error.**  
 
-> **Thank you** everyone, the miniserver is funded: https://www.gofundme.com/miniserver-fur-nodered-entwicklung
-> The fundraiser is **still open**, if you want to support my work on this node.
-
 ---
 
 This node connects the Loxone Miniserver to node-red. It uses [node-lox-ws-api](https://github.com/alladdin/node-lox-ws-api) 
