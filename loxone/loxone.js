@@ -219,7 +219,8 @@ module.exports = function (RED) {
                         const wsNode = node._webserviceNodeQueue[i];
                         const handler = wsNode.handler;
                         const nodeMsg = wsNode.msg;
-                        if (handler.uri === 'j' + message.control) {
+                        const uri = wsNode.uri;
+                        if (uri === 'j' + message.control) {
                             let msg = Object.assign(nodeMsg, {
                                 'payload': message.value,
                                 'topic': message.control,
@@ -252,7 +253,7 @@ module.exports = function (RED) {
                             handler.send(msg);
 
                             //unregister node from queue
-                            node.removeWebserviceNodeFromQueue(handler);
+                            node.removeWebserviceNodeFromQueue(handler, uri);
                             break;
                         }
                     }
@@ -346,10 +347,11 @@ module.exports = function (RED) {
         this._streamAllNodes.push(handler);
     };
 
-    LoxoneMiniserver.prototype.addWebserviceNodeToQueue = function (handler, msg) {
+    LoxoneMiniserver.prototype.addWebserviceNodeToQueue = function (handler, msg, uri) {
         this._webserviceNodeQueue.push({
             'handler': handler,
-            'msg': msg
+            'msg': msg,
+            'uri': uri
         });
     };
 
@@ -401,9 +403,9 @@ module.exports = function (RED) {
         });
     };
 
-    LoxoneMiniserver.prototype.removeWebserviceNodeFromQueue = function (handler) {
+    LoxoneMiniserver.prototype.removeWebserviceNodeFromQueue = function (handler, uri) {
         this._webserviceNodeQueue.forEach(function (node, i, outputNodes) {
-            if (node.handler === handler) {
+            if (node.handler === handler && node.uri === uri) {
                 outputNodes.splice(i, 1);
             }
         });
@@ -699,7 +701,7 @@ module.exports = function (RED) {
 
                 //add node to the queue for waiting messages and send the URI
                 if (node.miniserver.connected && node.miniserver.connection) {
-                    node.miniserver.addWebserviceNodeToQueue(node, msg);
+                    node.miniserver.addWebserviceNodeToQueue(node, msg, node.uri);
                     node.miniserver.connection.send_command(node.uri);
                 } else {
                     node.status({
