@@ -1,3 +1,6 @@
+### 0.10.13
+*  Fixed Error when multiple messages over one node, thanks [Jakob-Gliwa](https://github.com/Jakob-Gliwa)
+
 ### 0.10.12
 * node-lox-ws-api 0.4.5-bugfix4 which should resolve #58 thanks to @arsiesis
 
